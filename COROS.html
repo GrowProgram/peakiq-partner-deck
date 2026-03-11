@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COROS Training Intelligence — Powered by PeakIQ</title>
+    <style>
+        :root {
+            --coros-orange: #FF6B00;
+            --coros-orange-rgb: 255, 107, 0;
+            --coros-dark-bg: #0D0D0D;
+            --coros-card-bg: #1A1A1A;
+            --coros-card-border: rgba(255, 255, 255, 0.1);
+            --coros-text-primary: #FFFFFF;
+            --coros-text-secondary: #B0B0B0;
+            --coros-text-muted: #707070;
+            --coros-green: #00D98C;
+            --coros-red: #FF3B30;
+            --coros-yellow: #FFB800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--coros-dark-bg);
+            color: var(--coros-text-primary);
+            overflow-x: hidden;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .screen-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .screen-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--coros-text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .peakiq-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--coros-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .peakiq-badge::before {
+            content: '⚡';
+            font-size: 11px;
+        }
+
+        .card {
+            background: var(--coros-card-bg);
+            border: 1px solid var(--coros-card-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-large {
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .recovery-gauge {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 24px;
+        }
+
+        .gauge-circle {
+            transform: rotate(-90deg);
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 12;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke: var(--coros-green);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .gauge-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-value {
+            font-size: 56px;
+            font-weight: 700;
+            color: var(--coros-green);
+            line-height: 1;
+            margin: 0;
+        }
+
+        .gauge-max {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--coros-text-muted);
+            line-height: 1;
+            margin: 0;
+        }
+
+        .gauge-label {
+            font-size: 13px;
+            color: var(--coros-text-secondary);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+
+        .insight-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--coros-text-primary);
+            margin-bottom: 16px;
+        }
+
+        .insight-greeting {
+            font-weight: 600;
+            color: var(--coros-orange);
+            margin-bottom: 8px;
+        }
+
+        .metric-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .metric-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--coros-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--coros-text-primary);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .metric-unit {
+            font-size: 13px;
+            color: var(--coros-text-muted);
+            font-weight: 500;
+        }
+
+        .metric-detail {
+            font-size: 13px;
+            color: var(--coros-text-secondary);
+            margin-top: 8px;
+        }
+
+        .watch-mockup {
+            background: linear-gradient(135deg, #2A2A2A 0%, #1A1A1A 100%);
+            border: 3px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .watch-screen {
+            text-align: center;
+            padding: 32px;
+        }
+
+        .watch-label {
+            font-size: 11px;
+            color: var(--coros-orange);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 16px;
+        }
+
+        .watch-workout-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--coros-text-primary);
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .watch-distance {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--coros-orange);
+            margin-bottom: 8px;
+        }
+
+        .watch-zone {
+            font-size: 13px;
+            color: var(--coros-text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .watch-hr {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--coros-text-primary);
+            margin-top: 12px;
+        }
+
+        .watch-subtitle {
+            font-size: 11px;
+            color: var(--coros-text-muted);
+            margin-top: 12px;
+            line-height: 1.4;
+        }
+
+        .alert-card {
+            border-left: 4px solid var(--coros-red);
+            background: rgba(255, 59, 48, 0.08);
+            border-color: var(--coros-red);
+        }
+
+        .warning-card {
+            border-left: 4px solid var(--coros-orange);
+            background: rgba(255, 107, 0, 0.08);
+            border-color: var(--coros-orange);
+        }
+
+        .alert-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .alert-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--coros-text-primary);
+            margin-bottom: 12px;
+        }
+
+        .alert-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--coros-text-primary);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 107, 0, 0.2);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 24px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--coros-orange);
+            background: var(--coros-dark-bg);
+        }
+
+        .timeline-day {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--coros-orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .timeline-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--coros-text-primary);
+            margin-bottom: 8px;
+        }
+
+        .timeline-text {
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--coros-text-secondary);
+        }
+
+        .timeline-item.rest::before {
+            border-color: var(--coros-red);
+            background: var(--coros-red);
+        }
+
+        .timeline-item.caution::before {
+            border-color: var(--coros-yellow);
+            background: var(--coros-yellow);
+        }
+
+        .timeline-item.go::before {
+            border-color: var(--coros-green);
+            background: var(--coros-green);
+        }
+
+        .debrief-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .debrief-stat {
+            text-align: center;
+        }
+
+        .debrief-label {
+            font-size: 11px;
+            color: var(--coros-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 4px;
+        }
+
+        .debrief-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--coros-text-primary);
+        }
+
+        .insight-card {
+            background: rgba(0, 217, 140, 0.05);
+            border: 1px solid rgba(0, 217, 140, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .insight-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--coros-green);
+            margin-bottom: 8px;
+        }
+
+        .insight-card-text {
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--coros-text-primary);
+        }
+
+        .next-session {
+            background: rgba(255, 107, 0, 0.08);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .next-session-text {
+            font-size: 13px;
+            color: var(--coros-text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .next-session-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--coros-orange);
+        }
+
+        .nutrition-window {
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 107, 0, 0.05) 100%);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .nutrition-timer {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--coros-orange);
+            margin-bottom: 8px;
+        }
+
+        .nutrition-label {
+            font-size: 13px;
+            color: var(--coros-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .macro-display {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .macro-box {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .macro-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--coros-orange);
+            line-height: 1;
+        }
+
+        .macro-unit {
+            font-size: 12px;
+            color: var(--coros-text-muted);
+            margin-top: 4px;
+        }
+
+        .macro-name {
+            font-size: 11px;
+            color: var(--coros-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-top: 8px;
+        }
+
+        .fuel-status {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .fuel-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .fuel-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .fuel-label {
+            font-size: 13px;
+            color: var(--coros-text-secondary);
+        }
+
+        .fuel-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--coros-text-primary);
+        }
+
+        .fuel-deficit {
+            color: var(--coros-red);
+        }
+
+        .priority-note {
+            background: rgba(255, 59, 48, 0.08);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .priority-text {
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--coros-text-primary);
+        }
+
+        .priority-text strong {
+            color: var(--coros-red);
+            font-weight: 700;
+        }
+
+        .nav-dots {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px 20px;
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--coros-orange);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 107, 0, 0.2);
+            border: 1px solid rgba(255, 107, 0, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(255, 107, 0, 0.4);
+        }
+
+        .nav-arrow.left {
+            left: 20px;
+        }
+
+        .nav-arrow.right {
+            right: 20px;
+        }
+
+        .notification-banner {
+            background: rgba(255, 59, 48, 0.15);
+            border: 1px solid rgba(255, 59, 48, 0.4);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            font-size: 24px;
+        }
+
+        .notification-text {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--coros-text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .screen {
+                padding: 16px;
+            }
+
+            .screen-title {
+                font-size: 22px;
+            }
+
+            .recovery-gauge {
+                width: 160px;
+                height: 160px;
+            }
+
+            .gauge-value {
+                font-size: 48px;
+            }
+
+            .watch-mockup {
+                width: 240px;
+                height: 240px;
+            }
+
+            .nav-arrow {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Screen 1: Daily Insight Card (Home Screen Widget) -->
+    <div class="screen active" id="screen1">
+        <div class="screen-header">
+            <div class="screen-title">
+                Training Intelligence
+                <span class="peakiq-badge">Powered by PeakIQ</span>
+            </div>
+        </div>
+
+        <div class="card card-large">
+            <div class="recovery-gauge">
+                <svg class="gauge-circle" width="200" height="200">
+                    <circle class="gauge-bg" cx="100" cy="100" r="88"></circle>
+                    <circle class="gauge-fill" cx="100" cy="100" r="88" 
+                            stroke-dasharray="553" 
+                            stroke-dashoffset="108"
+                            style="stroke: var(--coros-green);"></circle>
+                </svg>
+                <div class="gauge-center">
+                    <div class="gauge-value">82</div>
+                    <div class="gauge-max">/100</div>
+                    <div class="gauge-label">Recovery Score</div>
+                </div>
+            </div>
+
+            <div class="insight-text">
+                <div class="insight-greeting">Good morning.</div>
+                Recovery is strong. HRV up 12% from yesterday. Your body has fully absorbed Saturday's long run. Today's window: <strong style="color: var(--coros-orange);">aerobic base work</strong>.
+            </div>
+        </div>
+
+        <div class="metric-row">
+            <div class="metric-card">
+                <div class="metric-label">Sleep Quality</div>
+                <div class="metric-value">87<span class="metric-unit">/100</span></div>
+                <div class="metric-detail">7h 23m • 1h 48m deep</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Readiness</div>
+                <div class="metric-value" style="color: var(--coros-green);">High</div>
+                <div class="metric-detail">All systems green</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Fatigue Load</div>
+            <div class="metric-value" style="font-size: 20px; color: var(--coros-yellow);">Moderate</div>
+            <div class="metric-detail">3-day trend declining</div>
+        </div>
+    </div>
+
+    <!-- Screen 2: Workout Push to Watch -->
+    <div class="screen" id="screen2">
+        <div class="screen-header">
+            <div class="screen-title">
+                Today's Workout
+                <span class="peakiq-badge">Powered by PeakIQ</span>
+            </div>
+        </div>
+
+        <div class="watch-mockup">
+            <div class="watch-screen">
+                <div class="watch-label">AI WORKOUT</div>
+                <div class="watch-workout-title">Easy Run</div>
+                <div class="watch-distance">8.0 km</div>
+                <div class="watch-zone">Zone 2 • Est. 42:00</div>
+                <div class="watch-hr">Target HR: 128-142 bpm</div>
+                <div class="watch-subtitle">Based on your current<br>recovery and training load</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="alert-title" style="color: var(--coros-orange); margin-bottom: 12px;">Why this workout?</div>
+            <div class="insight-text" style="margin-bottom: 0;">
+                Your recovery score (82/100) indicates strong adaptation. HRV is elevated, resting HR is down 3bpm from your 7-day average. This is the perfect window for aerobic stimulus without systemic stress.
+            </div>
+        </div>
+
+        <div class="card" style="background: rgba(255, 107, 0, 0.05); border-color: rgba(255, 107, 0, 0.2);">
+            <div class="metric-label" style="color: var(--coros-orange);">Workout Details</div>
+            <div style="font-size: 13px; line-height: 1.6; color: var(--coros-text-secondary); margin-top: 12px;">
+                • Stay in Z2 (128-142 bpm)<br>
+                • Conversational pace<br>
+                • Focus on aerobic efficiency<br>
+                • Auto-sync to your COROS watch
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 3: Injury Risk Alert -->
+    <div class="screen" id="screen3">
+        <div class="screen-header">
+            <div class="screen-title">
+                Alert
+                <span class="peakiq-badge">Powered by PeakIQ</span>
+            </div>
+        </div>
+
+        <div class="notification-banner">
+            <span class="notification-icon">⚠️</span>
+            <span class="notification-text">Overtraining Signal Detected — Tap for details</span>
+        </div>
+
+        <div class="card alert-card">
+            <div class="alert-icon">🚨</div>
+            <div class="alert-title">Elevated Overtraining Risk</div>
+            <div class="alert-text">
+                Your resting heart rate has risen <strong>8bpm</strong> over the past 5 days while HRV decreased <strong>15%</strong>. Combined with last week's <strong>12% volume increase</strong>, this indicates elevated overtraining risk.
+            </div>
+        </div>
+
+        <div class="card warning-card">
+            <div class="alert-title" style="color: var(--coros-orange);">Recommended Action</div>
+            <div class="alert-text">
+                Replace tomorrow's tempo run with a <strong>recovery swim or complete rest day</strong>. Resume intensity when HRV rebounds above your 30-day baseline.
+            </div>
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 107, 0, 0.2);">
+                <div style="font-size: 12px; color: var(--coros-text-muted); margin-bottom: 8px;">CURRENT STATUS</div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 13px; color: var(--coros-text-secondary);">Current HRV</span>
+                    <span style="font-size: 14px; font-weight: 700; color: var(--coros-red);">58ms</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-size: 13px; color: var(--coros-text-secondary);">30-day Baseline</span>
+                    <span style="font-size: 14px; font-weight: 700; color: var(--coros-text-primary);">67ms</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 4: Marathon Taper Flow -->
+    <div class="screen" id="screen4">
+        <div class="screen-header">
+            <div class="screen-title" style="font-size: 22px;">
+                Tel Aviv Marathon Taper
+                <span class="peakiq-badge">Powered by PeakIQ</span>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 28px;">
+            <div style="font-size: 48px; font-weight: 700; color: var(--coros-orange);">14</div>
+            <div style="font-size: 13px; color: var(--coros-text-secondary); text-transform: uppercase; letter-spacing: 1px;">Days to Race</div>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item go">
+                <div class="timeline-day">Day 14</div>
+                <div class="timeline-title">Last Long Run — 28K easy</div>
+                <div class="timeline-text">This is your final distance stimulus. Trust the training bank.</div>
+            </div>
+
+            <div class="timeline-item caution">
+                <div class="timeline-day">Day 10</div>
+                <div class="timeline-title">Volume Drops 40% Today</div>
+                <div class="timeline-text">Your body shifts from building to absorbing. Adaptation accelerates.</div>
+            </div>
+
+            <div class="timeline-item caution">
+                <div class="timeline-day">Day 7</div>
+                <div class="timeline-title">Sharpening — 6×800m @ Race Pace</div>
+                <div class="timeline-text">Last hard effort. Confirms speed without depleting reserves.</div>
+            </div>
+
+            <div class="timeline-item rest">
+                <div class="timeline-day">Day 5</div>
+                <div class="timeline-title">Easy 5K Only</div>
+                <div class="timeline-text">HRV should be climbing. Monitor sleep quality closely.</div>
+            </div>
+
+            <div class="timeline-item rest">
+                <div class="timeline-day">Day 3</div>
+                <div class="timeline-title">Complete Rest</div>
+                <div class="timeline-text">Trust the training. Your fitness peaks in 72 hours.</div>
+            </div>
+
+            <div class="timeline-item go">
+                <div class="timeline-day">Day 1 — Race Day</div>
+                <div class="timeline-title">Predicted Finish: 3:28–3:35</div>
+                <div class="timeline-text">Start conservative. Negative split from KM 30. Your data says you're ready.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 5: Post-Workout Debrief -->
+    <div class="screen" id="screen5">
+        <div class="screen-header">
+            <div class="screen-title">
+                Run Complete
+                <span class="peakiq-badge">Powered by PeakIQ</span>
+            </div>
+        </div>
+
+        <div class="card" style="background: rgba(0, 217, 140, 0.08); border-color: rgba(0, 217, 140, 0.3);">
+            <div class="debrief-summary">
+                <div class="debrief-stat">
+                    <div class="debrief-label">Distance</div>
+                    <div class="debrief-value">8.2 km</div>
+                </div>
+                <div class="debrief-stat">
+                    <div class="debrief-label">Time</div>
+                    <div class="debrief-value">41:38</div>
+                </div>
+                <div class="debrief-stat">
+                    <div class="debrief-label">Avg HR</div>
+                    <div class="debrief-value">136 bpm</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="insight-card">
+            <div class="insight-card-title">Cardiac Drift: 8%</div>
+            <div class="insight-card-text">
+                Excellent aerobic efficiency. Elite range is <10%. Your cardiovascular system maintained stable output throughout the run.
+            </div>
+        </div>
+
+        <div class="insight-card">
+            <div class="insight-card-title">Pace:HR Ratio Improved 3%</div>
+            <div class="insight-card-text">
+                Compared to last week's equivalent effort, you're running the same pace at a lower heart rate. This signals improved aerobic capacity.
+            </div>
+        </div>
+
+        <div class="insight-card">
+            <div class="insight-card-title">Training Effect Analysis</div>
+            <div class="insight-card-text">
+                Aerobic 3.2 • Anaerobic 0.4 — Well-targeted for today's goal. You stayed in the prescribed zone without straying into intensity.
+            </div>
+        </div>
+
+        <div class="next-session">
+            <div class="next-session-text">Your next recommended session:</div>
+            <div class="next-session-title">Threshold Intervals (Wednesday)</div>
+            <div style="font-size: 12px; color: var(--coros-text-muted); margin-top: 8px;">Your body will be ready.</div>
+        </div>
+    </div>
+
+    <!-- Screen 6: Nutrition Post-Workout -->
+    <div class="screen" id="screen6">
+        <div class="screen-header">
+            <div class="screen-title">
+                Recovery Window
+                <span class="peakiq-badge">Powered by PeakIQ</span>
+            </div>
+        </div>
+
+        <div class="nutrition-window">
+            <div class="nutrition-timer">28:34</div>
+            <div class="nutrition-label">Time Remaining</div>
+        </div>
+
+        <div class="card">
+            <div class="alert-title" style="color: var(--coros-orange); margin-bottom: 16px;">Optimal Recovery Nutrition</div>
+            <div class="insight-text" style="margin-bottom: 20px;">
+                Consume within <strong>30 minutes</strong> to maximize glycogen replenishment and muscle protein synthesis.
+            </div>
+
+            <div class="macro-display">
+                <div class="macro-box">
+                    <div class="macro-amount">45-60</div>
+                    <div class="macro-unit">grams</div>
+                    <div class="macro-name">Carbs</div>
+                </div>
+                <div class="macro-box">
+                    <div class="macro-amount">20-25</div>
+                    <div class="macro-unit">grams</div>
+                    <div class="macro-name">Protein</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="alert-title" style="margin-bottom: 16px;">Today's Fuel Status</div>
+            <div class="fuel-status">
+                <div class="fuel-row">
+                    <span class="fuel-label">Estimated Expenditure</span>
+                    <span class="fuel-value">2,840 kcal</span>
+                </div>
+                <div class="fuel-row">
+                    <span class="fuel-label">Current Intake (tracked)</span>
+                    <span class="fuel-value">1,200 kcal</span>
+                </div>
+                <div class="fuel-row">
+                    <span class="fuel-label">Deficit</span>
+                    <span class="fuel-value fuel-deficit">-1,640 kcal</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="priority-note">
+            <div class="priority-text">
+                <strong>Priority:</strong> Replenish glycogen stores before tomorrow's session. Your body needs fuel to adapt to today's training stimulus.
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-arrow left" onclick="prevScreen()">
+        <span style="color: var(--coros-orange); font-size: 20px;">←</span>
+    </div>
+    <div class="nav-arrow right" onclick="nextScreen()">
+        <span style="color: var(--coros-orange); font-size: 20px;">→</span>
+    </div>
+
+    <div class="nav-dots">
+        <div class="nav-dot active" onclick="goToScreen(1)"></div>
+        <div class="nav-dot" onclick="goToScreen(2)"></div>
+        <div class="nav-dot" onclick="goToScreen(3)"></div>
+        <div class="nav-dot" onclick="goToScreen(4)"></div>
+        <div class="nav-dot" onclick="goToScreen(5)"></div>
+        <div class="nav-dot" onclick="goToScreen(6)"></div>
+    </div>
+
+    <script>
+        let currentScreen = 1;
+        const totalScreens = 6;
+
+        function goToScreen(n) {
+            document.querySelector('.screen.active').classList.remove('active');
+            document.querySelector(`#screen${n}`).classList.add('active');
+            
+            document.querySelectorAll('.nav-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index + 1 === n);
+            });
+            
+            currentScreen = n;
+        }
+
+        function nextScreen() {
+            if (currentScreen < totalScreens) {
+                goToScreen(currentScreen + 1);
+            }
+        }
+
+        function prevScreen() {
+            if (currentScreen > 1) {
+                goToScreen(currentScreen - 1);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextScreen();
+            if (e.key === 'ArrowLeft') prevScreen();
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) nextScreen();
+            if (touchEndX > touchStartX + 50) prevScreen();
+        }
+    </script>
+</body>
+</html>
