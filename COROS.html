@@ -100,7 +100,6 @@
             margin-bottom: 24px;
         }
 
-        /* NEW: layout for Screen 1 card */
         .recovery-layout {
             display: grid;
             grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
@@ -677,9 +676,21 @@
                 margin-bottom: 8px;
             }
 
+            /* --- NEW MOBILE FIXES (TEXT SCALING) --- */
             .gauge-value {
-                font-size: 48px;
+                font-size: 42px; /* Reduced from 48px */
             }
+
+            .gauge-max {
+                font-size: 16px; /* Reduced from 20px */
+            }
+
+            .gauge-label {
+                font-size: 10px; /* Reduced from 13px */
+                letter-spacing: 0.5px; /* Tighter spacing */
+                margin-top: 4px;
+            }
+            /* --------------------------------------- */
 
             .watch-mockup {
                 width: 240px;
@@ -690,7 +701,6 @@
                 display: none;
             }
 
-            /* --- NEW MOBILE FIXES --- */
             .watch-screen {
                 padding: 16px;
             }
@@ -708,7 +718,6 @@
                 margin-top: 6px;
                 font-size: 10px;
             }
-            /* ------------------------ */
         }
     </style>
 </head>
