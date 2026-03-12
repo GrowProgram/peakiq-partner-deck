@@ -306,52 +306,6 @@ body{
 .cross{color:rgba(224,230,240,0.25)}
 .partial{color:#f0a030}
 
-/* ===== TIMELINE ===== */
-.timeline{
-  display:flex;
-  flex-direction:column;
-  gap:0;
-  position:relative;
-  padding-left:40px;
-  max-width:800px;
-  width:100%;
-}
-.timeline::before{
-  content:'';
-  position:absolute;
-  left:11px;top:0;bottom:0;
-  width:2px;
-  background:linear-gradient(180deg,#00e0b0,#00b4d8,#7c3aed);
-  opacity:0.4;
-}
-.tl-item{
-  display:flex;
-  align-items:flex-start;
-  gap:24px;
-  padding:16px 0;
-  position:relative;
-}
-.tl-dot{
-  width:24px;height:24px;
-  border-radius:50%;
-  background:radial-gradient(circle,#00e0b0,#00b4d8);
-  flex-shrink:0;
-  margin-left:-52px;
-  box-shadow:0 0 20px rgba(0,224,176,0.4);
-  position:relative;
-  z-index:1;
-}
-.tl-label{
-  font-size:0.8rem;
-  font-weight:600;
-  color:rgba(0,224,176,0.8);
-  min-width:100px;
-}
-.tl-text{
-  font-size:0.95rem;
-  color:rgba(224,230,240,0.7);
-}
-
 /* ===== PRICING TABLE ===== */
 .pricing-grid{
   display:grid;
@@ -449,16 +403,6 @@ body{
   letter-spacing:0.05em;
 }
 
-/* ===== SPLIT LAYOUT ===== */
-.split{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:48px;
-  width:100%;
-  max-width:1100px;
-  align-items:center;
-}
-
 /* ===== CONTENT CONSTRAINTS ===== */
 .slide-content{
   position:relative;
@@ -481,7 +425,6 @@ body{
 @media(max-width:900px){
   .slide{padding:40px 24px}
   .grid-3,.grid-4,.pricing-grid,.sla-row{grid-template-columns:repeat(2,1fr)}
-  .split{grid-template-columns:1fr;gap:24px}
   .comp-table{font-size:0.65rem}
   .comp-table th,.comp-table td{padding:8px 6px}
   body{cursor:auto}
@@ -552,7 +495,7 @@ body{
   <div class="slide-content text-center">
     <div class="reveal hero-orb" style="transition-delay:0.1s"><img src="./assets/peakIQ-orb-final.png" alt="PeakIQ Orb"></div>
     <h1 class="reveal heading h1" style="transition-delay:0.25s">PeakIQ.ai <span class="gradient-text">— The Autonomous AI Brain</span><br>for Every Athlete's Body</h1>
-    <p class="reveal caption" style="transition-delay:0.4s; margin-top: 12px; color:rgba(224,230,240,0.6); letter-spacing: 0.05em; font-size: 0.9rem;">
+    <p class="reveal caption" style="transition-delay:0.4s; margin-top: 12px; color:rgba(224,230,240,0.6); letter-spacing: 0.05em; font-size: 0.9rem; text-transform: none;">
       Built by a Level 70 Zwifter to solve the exact problems your riders face daily.
     </p>
     <div class="reveal badge-row" style="transition-delay:0.55s">
@@ -743,18 +686,19 @@ body{
   <div class="blob" style="width:380px;height:380px;background:radial-gradient(circle,rgba(0,180,216,0.1),transparent);top:-5%;right:-5%;animation-delay:4s"></div>
   <div class="slide-content text-center">
     <p class="reveal caption" style="transition-delay:0.1s;color:rgba(0,212,255,0.7)">Zwift Partnership</p>
-    <h2 class="reveal heading h2" style="transition-delay:0.2s">Zwift — <span class="gradient-text">Post-Price-Hike Churn Crisis</span></h2>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s">Zwift — <span class="gradient-text">The Retention Challenge</span></h2>
     <div class="reveal grid-3" style="transition-delay:0.35s;margin-top:24px">
       <div class="glass text-center">
-        <p class="stat-value" style="font-size:1.8rem">49K → 41K</p>
-        <p class="stat-label">Peak concurrent users declining</p>
+        <p class="stat-value" style="font-size:1.8rem">~41K</p>
+        <p class="stat-label">Peak concurrent users stagnating post-COVID</p>
       </div>
       <div class="glass text-center">
         <p class="stat-value" style="font-size:1.8rem">$14.99 → $19.99</p>
-        <p class="stat-label">Price hike triggered churn</p>
+        <p class="stat-label">Users expecting more value for the new price</p>
       </div>
       <div class="glass text-center" style="display:flex;flex-direction:column;justify-content:center">
-        <p class="body" style="color:rgba(224,230,240,0.7)">PeakIQ delivers the extra value needed to justify the new price.</p>
+        <p class="body" style="color:rgba(224,230,240,0.85);font-weight:600">The Solution:</p>
+        <p class="body" style="color:rgba(224,230,240,0.6);margin-top:4px">PeakIQ delivers the 24/7 autonomous value needed to justify $19.99/mo.</p>
       </div>
     </div>
     <div class="reveal glass" style="transition-delay:0.5s;margin-top:16px;padding:20px 28px;max-width:600px">
