@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You See the Workout. We See the Rest of the Day.</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            line-height: 1.6;
+            padding: 48px 60px;
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .logo-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(252, 76, 2, 0.2);
+        }
+        
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        
+        .logo-divider {
+            width: 2px;
+            height: 32px;
+            background: #FC4C02;
+        }
+        
+        .strava-logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #FC4C02;
+            letter-spacing: -0.5px;
+        }
+        
+        .peakiq-logo {
+            font-size: 28px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+        
+        .headline {
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 48px;
+            color: #FC4C02;
+            letter-spacing: -0.8px;
+        }
+        
+        .section {
+            margin-bottom: 32px;
+        }
+        
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #FC4C02;
+            margin-bottom: 12px;
+        }
+        
+        .section-content {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #e0e0e0;
+        }
+        
+        .section-content.large {
+            font-size: 17px;
+            line-height: 1.75;
+        }
+        
+        .numbers-section {
+            background: rgba(252, 76, 2, 0.08);
+            border-left: 3px solid #FC4C02;
+            padding: 24px 28px;
+            margin: 32px 0;
+        }
+        
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+        
+        .number-item {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #ffffff;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .number-item::before {
+            content: "•";
+            color: #FC4C02;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 12px;
+            line-height: 1.2;
+        }
+        
+        .closing {
+            margin-top: auto;
+            padding-top: 32px;
+            border-top: 1px solid rgba(252, 76, 2, 0.2);
+        }
+        
+        .closing-text {
+            font-size: 17px;
+            line-height: 1.7;
+            color: #ffffff;
+            font-weight: 500;
+            font-style: italic;
+        }
+        
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+        }
+        
+        .footer-contact {
+            color: #FC4C02;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        strong {
+            color: #FC4C02;
+            font-weight: 600;
+        }
+        
+        @media print {
+            body {
+                padding: 40px 50px;
+            }
+            
+            .headline {
+                page-break-after: avoid;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-bar">
+        <div class="logo-group">
+            <div class="strava-logo">STRAVA</div>
+            <div class="logo-divider"></div>
+            <div class="peakiq-logo">PeakIQ</div>
+        </div>
+    </div>
+    
+    <h1 class="headline">You See the Workout.<br>We See the Rest of the Day.</h1>
+    
+    <div class="section">
+        <div class="section-content large">
+            Strava captures the world's most valuable moment in fitness — the workout. But for the other 23 hours of the day, 150 million athletes are flying blind.
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-label">The Gap</div>
+        <div class="section-content">
+            Strava knows that an athlete ran 10K at 5:15/km with an average heart rate of 155bpm. Strava doesn't know that the same athlete slept 5.5 hours, has an HRV trending 20% below baseline, and is 72 hours away from an overtraining injury. That's the gap between a fitness social network and an autonomous fitness intelligence platform.
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-label">The Bridge</div>
+        <div class="section-content">
+            PeakIQ orchestrates 50+ concurrent AI processes — coach, nutritionist, sports physician — that analyze the full 24-hour athlete lifecycle. We've already built it. It works. And we just integrated with Strava's API.
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-label">The Proposition</div>
+        <div class="section-content">
+            <strong>"PeakIQ completes Strava."</strong> We become the intelligence layer that transforms Strava from the world's best workout log into the world's first autonomous coaching platform. For Strava subscribers, this means daily insights, recovery guidance, and personalized training recommendations — all inside the ecosystem they already love.
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-label">The IPO Angle</div>
+        <div class="section-content">
+            Strava's path to Wall Street depends on converting free users to paid subscribers. PeakIQ-powered daily insights give free users a reason to upgrade — and paid users a reason to never leave.
+        </div>
+    </div>
+    
+    <div class="numbers-section">
+        <div class="section-label" style="margin-bottom: 16px;">The Numbers</div>
+        <div class="numbers-grid">
+            <div class="number-item">150M Strava users × estimated 2-15% paid conversion</div>
+            <div class="number-item">PeakIQ daily "aha moments" drive daily app opens (not just post-workout)</div>
+            <div class="number-item">Validated: $18/mo willingness-to-pay for autonomous AI coaching</div>
+            <div class="number-item">Integration: Live today via approved Strava API</div>
+            <div class="number-item">Time to full deployment: 30 days for API intelligence layer</div>
+        </div>
+    </div>
+    
+    <div class="closing">
+        <div class="closing-text">
+            "Every athlete deserves to understand what their body is telling them — not just during the workout, but every hour of every day. That's what PeakIQ builds. That's what Strava delivers."
+        </div>
+    </div>
+    
+    <div class="footer">
+        Partnership Inquiry: <a href="mailto:hello@peakiq.ai" class="footer-contact">hello@peakiq.ai</a>
+    </div>
+</body>
+</html>
