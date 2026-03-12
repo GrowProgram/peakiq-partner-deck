@@ -1,1101 +1,1276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COROS Body Intelligence — Powered by PeakIQ</title>
-    <style>
-        :root {
-            --coros-orange: #FF6B00;
-            --coros-orange-rgb: 255, 107, 0;
-            --coros-dark-bg: #0D0D0D;
-            --coros-card-bg: #1A1A1A;
-            --coros-card-border: rgba(255, 255, 255, 0.1);
-            --coros-text-primary: #FFFFFF;
-            --coros-text-secondary: #B0B0B0;
-            --coros-text-muted: #707070;
-            --coros-green: #00D98C;
-            --coros-red: #FF3B30;
-            --coros-yellow: #FFB800;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-            background: var(--coros-dark-bg);
-            color: var(--coros-text-primary);
-            overflow-x: hidden;
-        }
-
-        .screen {
-            display: none;
-            min-height: 100vh;
-            padding: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .screen-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        /* --- עיצוב הלוגו החדש --- */
-        .coros-header-logo {
-            height: 36px; /* גובה מכובד וברור */
-            width: auto;
-            object-fit: contain;
-        }
-
-        .screen-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--coros-text-primary);
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin: 0;
-            flex-wrap: wrap; /* מאפשר לטקסט לגלוש יפה במסכים קטנים */
-        }
-        /* -------------------------- */
-
-        .peakiq-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--coros-text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .peakiq-badge::before {
-            content: '⚡';
-            font-size: 11px;
-        }
-
-        .card {
-            background: var(--coros-card-bg);
-            border: 1px solid var(--coros-card-border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            backdrop-filter: blur(10px);
-        }
-
-        .card-large {
-            padding: 28px;
-            margin-bottom: 24px;
-        }
-
-        .recovery-layout {
-            display: grid;
-            grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
-            align-items: center;
-            column-gap: 32px;
-        }
-
-        .recovery-gauge {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            margin: 0 auto;
-        }
-
-        .gauge-circle {
-            transform: rotate(-90deg);
-        }
-
-        .gauge-bg {
-            fill: none;
-            stroke: rgba(255, 255, 255, 0.1);
-            stroke-width: 12;
-        }
-
-        .gauge-fill {
-            fill: none;
-            stroke: var(--coros-green);
-            stroke-width: 12;
-            stroke-linecap: round;
-            transition: stroke-dashoffset 1s ease;
-        }
-
-        .gauge-center {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .gauge-value {
-            font-size: 56px;
-            font-weight: 700;
-            color: var(--coros-green);
-            line-height: 1;
-            margin: 0;
-        }
-
-        .gauge-max {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--coros-text-muted);
-            line-height: 1;
-            margin: 0;
-        }
-
-        .gauge-label {
-            font-size: 13px;
-            color: var(--coros-text-secondary);
-            margin-top: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            line-height: 1;
-        }
-
-        .insight-text {
-            font-size: 15px;
-            line-height: 1.6;
-            color: var(--coros-text-primary);
-            margin-bottom: 16px;
-        }
-
-        .insight-greeting {
-            font-weight: 600;
-            color: var(--coros-orange);
-            margin-bottom: 8px;
-        }
-
-        .metric-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .metric-card {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 16px;
-        }
-
-        .metric-label {
-            font-size: 11px;
-            color: var(--coros-text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .metric-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--coros-text-primary);
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-
-        .metric-unit {
-            font-size: 13px;
-            color: var(--coros-text-muted);
-            font-weight: 500;
-        }
-
-        .metric-detail {
-            font-size: 13px;
-            color: var(--coros-text-secondary);
-            margin-top: 8px;
-        }
-
-        .watch-mockup {
-            background: linear-gradient(135deg, #2A2A2A 0%, #1A1A1A 100%);
-            border: 3px solid rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            width: 280px;
-            height: 280px;
-            margin: 0 auto 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        }
-
-        .watch-screen {
-            text-align: center;
-            padding: 32px;
-            width: 100%;
-            max-width: 220px;
-            margin: 0 auto;
-        }
-
-        .watch-label {
-            font-size: 11px;
-            color: var(--coros-orange);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            margin-bottom: 16px;
-        }
-
-        .watch-workout-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--coros-text-primary);
-            margin-bottom: 8px;
-            line-height: 1.2;
-        }
-
-        .watch-distance {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--coros-orange);
-            margin-bottom: 8px;
-        }
-
-        .watch-zone {
-            font-size: 13px;
-            color: var(--coros-text-secondary);
-            margin-bottom: 4px;
-        }
-
-        .watch-hr {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--coros-text-primary);
-            margin-top: 8px;
-        }
-
-        .watch-subtitle {
-            font-size: 11px;
-            color: var(--coros-text-muted);
-            margin-top: 10px;
-            line-height: 1.3;
-            white-space: normal;
-            word-wrap: break-word;
-        }
-
-        .alert-card {
-            border-left: 4px solid var(--coros-red);
-            background: rgba(255, 59, 48, 0.08);
-            border-color: var(--coros-red);
-        }
-
-        .warning-card {
-            border-left: 4px solid var(--coros-orange);
-            background: rgba(255, 107, 0, 0.08);
-            border-color: var(--coros-orange);
-        }
-
-        .alert-icon {
-            font-size: 28px;
-            margin-bottom: 12px;
-        }
-
-        .alert-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--coros-text-primary);
-            margin-bottom: 12px;
-        }
-
-        .alert-text {
-            font-size: 14px;
-            line-height: 1.6;
-            color: var(--coros-text-primary);
-        }
-
-        .timeline {
-            position: relative;
-            padding-left: 32px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 8px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: rgba(255, 107, 0, 0.2);
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 24px;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -24px;
-            top: 24px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid var(--coros-orange);
-            background: var(--coros-dark-bg);
-        }
-
-        .timeline-day {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--coros-orange);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .timeline-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--coros-text-primary);
-            margin-bottom: 8px;
-        }
-
-        .timeline-text {
-            font-size: 13px;
-            line-height: 1.5;
-            color: var(--coros-text-secondary);
-        }
-
-        .timeline-item.rest::before {
-            border-color: var(--coros-red);
-            background: var(--coros-red);
-        }
-
-        .timeline-item.caution::before {
-            border-color: var(--coros-yellow);
-            background: var(--coros-yellow);
-        }
-
-        .timeline-item.go::before {
-            border-color: var(--coros-green);
-            background: var(--coros-green);
-        }
-
-        .debrief-summary {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .debrief-stat {
-            text-align: center;
-        }
-
-        .debrief-label {
-            font-size: 11px;
-            color: var(--coros-text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 4px;
-        }
-
-        .debrief-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--coros-text-primary);
-        }
-
-        .insight-card {
-            background: rgba(0, 217, 140, 0.05);
-            border: 1px solid rgba(0, 217, 140, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .insight-card-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--coros-green);
-            margin-bottom: 8px;
-        }
-
-        .insight-card-text {
-            font-size: 13px;
-            line-height: 1.5;
-            color: var(--coros-text-primary);
-        }
-
-        .next-session {
-            background: rgba(255, 107, 0, 0.08);
-            border: 1px solid rgba(255, 107, 0, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 20px;
-        }
-
-        .next-session-text {
-            font-size: 13px;
-            color: var(--coros-text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .next-session-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--coros-orange);
-        }
-
-        .nutrition-window {
-            background: linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 107, 0, 0.05) 100%);
-            border: 1px solid rgba(255, 107, 0, 0.3);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .nutrition-timer {
-            font-size: 48px;
-            font-weight: 700;
-            color: var(--coros-orange);
-            margin-bottom: 8px;
-        }
-
-        .nutrition-label {
-            font-size: 13px;
-            color: var(--coros-text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .macro-display {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .macro-box {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-        }
-
-        .macro-amount {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--coros-orange);
-            line-height: 1;
-        }
-
-        .macro-unit {
-            font-size: 12px;
-            color: var(--coros-text-muted);
-            margin-top: 4px;
-        }
-
-        .macro-name {
-            font-size: 11px;
-            color: var(--coros-text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-top: 8px;
-        }
-
-        .fuel-status {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .fuel-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .fuel-row:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .fuel-label {
-            font-size: 13px;
-            color: var(--coros-text-secondary);
-        }
-
-        .fuel-value {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--coros-text-primary);
-        }
-
-        .fuel-deficit {
-            color: var(--coros-red);
-        }
-
-        .priority-note {
-            background: rgba(255, 59, 48, 0.08);
-            border: 1px solid rgba(255, 59, 48, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 20px;
-        }
-
-        .priority-text {
-            font-size: 13px;
-            line-height: 1.5;
-            color: var(--coros-text-primary);
-        }
-
-        .priority-text strong {
-            color: var(--coros-red);
-            font-weight: 700;
-        }
-
-        .nav-dots {
-            position: fixed;
-            bottom: 32px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 12px 20px;
-            border-radius: 24px;
-            backdrop-filter: blur(10px);
-            z-index: 100;
-        }
-
-        .nav-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .nav-dot.active {
-            background: var(--coros-orange);
-            width: 24px;
-            border-radius: 4px;
-        }
-
-        .nav-arrow {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 48px;
-            height: 48px;
-            background: rgba(255, 107, 0, 0.2);
-            border: 1px solid rgba(255, 107, 0, 0.4);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 100;
-            transition: all 0.3s ease;
-        }
-
-        .nav-arrow:hover {
-            background: rgba(255, 107, 0, 0.4);
-        }
-
-        .nav-arrow.left {
-            left: 20px;
-        }
-
-        .nav-arrow.right {
-            right: 20px;
-        }
-
-        .notification-banner {
-            background: rgba(255, 59, 48, 0.15);
-            border: 1px solid rgba(255, 59, 48, 0.4);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .notification-icon {
-            font-size: 24px;
-        }
-
-        .notification-text {
-            flex: 1;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--coros-text-primary);
-        }
-
-        @media (max-width: 768px) {
-            .screen {
-                padding: 16px;
-            }
-
-            .coros-header-logo {
-                height: 24px; /* הקטנה למובייל */
-            }
-
-            .screen-title {
-                font-size: 22px;
-                gap: 10px;
-            }
-
-            .recovery-layout {
-                grid-template-columns: 1fr;
-                row-gap: 16px;
-            }
-
-            .recovery-gauge {
-                width: 160px;
-                height: 160px;
-                margin-bottom: 8px;
-            }
-
-            .gauge-value {
-                font-size: 42px; /* התיקון שהוכנס ל-RECOVERY SCORE */
-            }
-
-            .gauge-max {
-                font-size: 16px;
-            }
-
-            .gauge-label {
-                font-size: 10px;
-                letter-spacing: 0.5px;
-                margin-top: 4px;
-            }
-
-            .watch-mockup {
-                width: 240px;
-                height: 240px;
-            }
-
-            .nav-arrow {
-                display: none;
-            }
-
-            .watch-screen {
-                padding: 16px;
-            }
-
-            .watch-label {
-                margin-bottom: 8px;
-            }
-
-            .watch-distance {
-                font-size: 28px;
-                margin-bottom: 4px;
-            }
-
-            .watch-subtitle {
-                margin-top: 6px;
-                font-size: 10px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PeakIQ.ai — COROS Partner Intelligence Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{
+  font-family:'Inter',sans-serif;
+  background:#0a0f1e;
+  color:#e0e6f0;
+  overflow:hidden;
+  height:100vh;
+  width:100vw;
+  cursor:none;
+}
+
+/* ===== CUSTOM CURSOR / SPOTLIGHT ===== */
+#cursor-spotlight{
+  position:fixed;
+  width:400px;height:400px;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  background:radial-gradient(circle,rgba(0,224,176,0.06) 0%,rgba(0,180,216,0.03) 40%,transparent 70%);
+  transform:translate(-50%,-50%);
+  transition:opacity 0.3s;
+  mix-blend-mode:screen;
+}
+#cursor-dot{
+  position:fixed;
+  width:8px;height:8px;
+  border-radius:50%;
+  background:rgba(0,224,176,0.8);
+  pointer-events:none;
+  z-index:10000;
+  transform:translate(-50%,-50%);
+  transition:width 0.2s,height 0.2s;
+}
+
+/* ===== SLIDE CONTAINER ===== */
+#deck{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+}
+.slide{
+  position:absolute;
+  top:0;left:0;
+  width:100vw;height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:60px 80px;
+  opacity:0;
+  transform:translateX(60px);
+  pointer-events:none;
+  transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1),transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  overflow:hidden;
+}
+.slide.active{
+  opacity:1;
+  transform:translateX(0);
+  pointer-events:auto;
+}
+.slide.exit-left{
+  opacity:0;
+  transform:translateX(-60px);
+}
+
+/* ===== GRADIENT MESH BLOBS ===== */
+.blob{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(80px);
+  opacity:0.25;
+  animation:blobFloat 12s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes blobFloat{
+  0%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(30px,-40px) scale(1.1)}
+  66%{transform:translate(-20px,30px) scale(0.95)}
+  100%{transform:translate(15px,-15px) scale(1.05)}
+}
+
+/* ===== PARTICLE CANVAS ===== */
+.particle-canvas{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ===== TYPOGRAPHY ===== */
+.heading{
+  font-family:'Montserrat',sans-serif;
+  font-weight:700;
+  line-height:1.15;
+  text-wrap:balance;
+}
+.h1{font-size:clamp(2.5rem,1rem+4vw,4.5rem);letter-spacing:-0.02em}
+.h2{font-size:clamp(1.8rem,1rem+2.5vw,3rem);letter-spacing:-0.01em}
+.h3{font-size:clamp(1.2rem,0.8rem+1.5vw,1.8rem)}
+.body-lg{font-size:clamp(1rem,0.9rem+0.5vw,1.25rem);line-height:1.6;font-weight:300;color:rgba(224,230,240,0.7)}
+.body{font-size:clamp(0.875rem,0.8rem+0.3vw,1rem);line-height:1.6;font-weight:400}
+.caption{font-size:clamp(0.7rem,0.65rem+0.2vw,0.8rem);font-weight:500;text-transform:uppercase;letter-spacing:0.12em;color:rgba(0,224,176,0.7)}
+.mono{font-family:'Inter',monospace;font-variant-numeric:tabular-nums}
+
+/* ===== GRADIENT TEXT ===== */
+.gradient-text{
+  background:linear-gradient(135deg,#00e0b0,#00b4d8,#7c3aed);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+/* ===== GLASS CARD ===== */
+.glass{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  padding:32px;
+  position:relative;
+  overflow:hidden;
+}
+.glass::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,224,176,0.3),transparent);
+}
+.glass:hover{
+  border-color:rgba(0,224,176,0.2);
+  background:rgba(255,255,255,0.06);
+}
+
+/* ===== SLIDE NAV ===== */
+#slide-nav{
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:1000;
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.nav-dot{
+  width:8px;height:8px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.2);
+  cursor:pointer;
+  transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+  border:none;
+}
+.nav-dot.active{
+  width:24px;
+  border-radius:4px;
+  background:linear-gradient(90deg,#00e0b0,#00b4d8);
+}
+#slide-counter{
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  z-index:1000;
+  font-size:13px;
+  font-weight:500;
+  color:rgba(224,230,240,0.4);
+  font-variant-numeric:tabular-nums;
+}
+
+/* ===== PROGRESS BAR ===== */
+#progress-bar{
+  position:fixed;
+  top:0;left:0;
+  height:2px;
+  background:linear-gradient(90deg,#00e0b0,#00b4d8,#7c3aed);
+  z-index:1001;
+  transition:width 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* ===== REVEAL ANIMATION ===== */
+.reveal{
+  opacity:0;
+  transform:translateY(24px);
+  transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* ===== ORB / HERO ANIMATION ===== */
+.hero-orb{
+  width:180px;height:180px;
+  animation:orbFloat 6s ease-in-out infinite;
+  position:relative;
+  filter:drop-shadow(0 0 40px rgba(0,224,176,0.3)) drop-shadow(0 0 80px rgba(0,180,216,0.15));
+}
+.hero-orb img{
+  width:100%;height:100%;
+  object-fit:contain;
+}
+.hero-orb::after{
+  content:'';
+  position:absolute;
+  inset:-20px;
+  border-radius:50%;
+  border:1px solid rgba(0,224,176,0.15);
+  animation:orbRing 8s linear infinite;
+}
+@keyframes orbFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-15px) scale(1.03)}
+}
+@keyframes orbRing{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
+
+/* ===== STAT COUNTER ===== */
+.stat-value{
+  font-family:'Inter',sans-serif;
+  font-weight:700;
+  font-size:clamp(2rem,1.5rem+2vw,3.5rem);
+  font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,#00e0b0,#00b4d8);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.stat-label{
+  font-size:clamp(0.75rem,0.7rem+0.2vw,0.875rem);
+  color:rgba(224,230,240,0.5);
+  margin-top:8px;
+  font-weight:400;
+}
+
+/* ===== GRID LAYOUTS ===== */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;width:100%;max-width:1100px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;width:100%;max-width:1100px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%;max-width:1200px}
+.flex-center{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.text-center{text-align:center}
+
+/* ===== PARTNER BADGES ===== */
+.badge-row{
+  display:flex;
+  gap:24px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:32px;
+}
+.badge{
+  padding:8px 20px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.03);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.06em;
+  color:rgba(224,230,240,0.5);
+}
+
+/* ===== COMPARISON TABLE ===== */
+.comp-table{
+  width:100%;
+  max-width:1100px;
+  border-collapse:collapse;
+  font-size:clamp(0.7rem,0.65rem+0.3vw,0.875rem);
+}
+.comp-table th{
+  padding:12px 16px;
+  text-align:left;
+  font-weight:600;
+  color:rgba(224,230,240,0.5);
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  font-size:0.75rem;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+}
+.comp-table td{
+  padding:12px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  color:rgba(224,230,240,0.7);
+}
+.comp-table tr td:first-child{
+  color:rgba(224,230,240,0.9);
+  font-weight:500;
+}
+.check{color:#00e0b0;font-weight:700}
+.cross{color:rgba(224,230,240,0.25)}
+.partial{color:#f0a030}
+
+/* ===== TIMELINE ===== */
+.timeline{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  position:relative;
+  padding-left:40px;
+  max-width:800px;
+  width:100%;
+}
+.timeline::before{
+  content:'';
+  position:absolute;
+  left:11px;top:0;bottom:0;
+  width:2px;
+  background:linear-gradient(180deg,#00e0b0,#00b4d8,#7c3aed);
+  opacity:0.4;
+}
+.tl-item{
+  display:flex;
+  align-items:flex-start;
+  gap:24px;
+  padding:16px 0;
+  position:relative;
+}
+.tl-dot{
+  width:24px;height:24px;
+  border-radius:50%;
+  background:radial-gradient(circle,#00e0b0,#00b4d8);
+  flex-shrink:0;
+  margin-left:-52px;
+  box-shadow:0 0 20px rgba(0,224,176,0.4);
+  position:relative;
+  z-index:1;
+}
+.tl-label{
+  font-size:0.8rem;
+  font-weight:600;
+  color:rgba(0,224,176,0.8);
+  min-width:100px;
+}
+.tl-text{
+  font-size:0.95rem;
+  color:rgba(224,230,240,0.7);
+}
+
+/* ===== PRICING TABLE ===== */
+.pricing-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  width:100%;
+  max-width:1100px;
+}
+.price-card{
+  text-align:center;
+  padding:28px 20px;
+}
+.price-card.highlighted{
+  border-color:rgba(0,224,176,0.4);
+  background:rgba(0,224,176,0.06);
+}
+.price-tier{
+  font-size:0.75rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  color:rgba(0,224,176,0.7);
+  margin-bottom:8px;
+}
+.price-users{
+  font-size:0.8rem;
+  color:rgba(224,230,240,0.4);
+  margin-bottom:16px;
+}
+.price-amount{
+  font-size:2rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#00e0b0,#00b4d8);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.price-period{
+  font-size:0.75rem;
+  color:rgba(224,230,240,0.4);
+}
+.sla-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  width:100%;
+  max-width:1100px;
+  margin-top:16px;
+  text-align:center;
+}
+.sla-val{
+  font-size:0.85rem;
+  font-weight:600;
+  color:rgba(0,224,176,0.7);
+}
+.sla-label{
+  font-size:0.7rem;
+  color:rgba(224,230,240,0.35);
+  margin-top:4px;
+}
+
+/* ===== COROS ACCENT THEME ===== */
+.accent-orange .stat-value,.accent-orange .gradient-text{
+  background:linear-gradient(135deg,#ff8c00,#ff6b35);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.accent-orange .glass::before{background:linear-gradient(90deg,transparent,rgba(255,140,0,0.4),transparent)}
+.accent-orange .tl-dot{background:radial-gradient(circle,#ff8c00,#ff6b35)}
+
+.accent-violet .stat-value,.accent-violet .gradient-text{
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.accent-violet .glass::before{background:linear-gradient(90deg,transparent,rgba(99,102,241,0.4),transparent)}
+
+.accent-purple .stat-value,.accent-purple .gradient-text{
+  background:linear-gradient(135deg,#9333ea,#7c3aed);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.accent-purple .glass::before{background:linear-gradient(90deg,transparent,rgba(147,51,234,0.4),transparent)}
+
+/* ===== PHONE MOCKUP ===== */
+.phone-frame{
+  width:240px;
+  height:480px;
+  border-radius:32px;
+  border:3px solid rgba(255,255,255,0.15);
+  background:rgba(0,0,0,0.4);
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.phone-frame::before{
+  content:'';
+  position:absolute;
+  top:12px;left:50%;transform:translateX(-50%);
+  width:80px;height:4px;
+  border-radius:2px;
+  background:rgba(255,255,255,0.2);
+}
+.phone-placeholder{
+  font-size:0.7rem;
+  color:rgba(224,230,240,0.3);
+  text-align:center;
+  padding:20px;
+  letter-spacing:0.05em;
+}
+
+/* ===== SPLIT LAYOUT ===== */
+.split{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:48px;
+  width:100%;
+  max-width:1100px;
+  align-items:center;
+}
+
+/* ===== CONTENT CONSTRAINTS ===== */
+.slide-content{
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:1200px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:32px;
+}
+
+/* ===== HIGHLIGHTED CARD ===== */
+.glass.highlight{
+  border-color:rgba(0,224,176,0.35);
+  background:rgba(0,224,176,0.06);
+}
+
+/* ===== FOOTER ATTRIBUTION ===== */
+#attribution{
+  position:fixed;
+  bottom:8px;
+  left:20px;
+  z-index:1000;
+  font-size:10px;
+  color:rgba(224,230,240,0.2);
+}
+#attribution a{
+  color:rgba(224,230,240,0.3);
+  text-decoration:none;
+}
+#attribution a:hover{
+  color:rgba(0,224,176,0.5);
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .slide{padding:40px 24px}
+  .grid-3,.grid-4,.pricing-grid,.sla-row{grid-template-columns:repeat(2,1fr)}
+  .split{grid-template-columns:1fr;gap:24px}
+  .comp-table{font-size:0.65rem}
+  .comp-table th,.comp-table td{padding:8px 6px}
+  body{cursor:auto}
+  #cursor-spotlight,#cursor-dot{display:none}
+}
+@media(max-width:600px){
+  .grid-2,.grid-3,.grid-4,.pricing-grid,.sla-row{grid-template-columns:1fr}
+  .slide{padding:30px 16px}
+  .hero-orb{width:120px;height:120px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+  }
+}
+
+/* ===== MOCKUP PHONE ===== */
+.mockup-phone{
+  border-radius:32px;
+  overflow:hidden;
+  box-shadow:
+    0 16px 48px rgba(0,0,0,0.6),
+    0 0 0 2px rgba(80,80,100,0.3),
+    0 0 80px rgba(0,224,176,0.04);
+  background:#1a1a2e;
+  max-width:240px;
+  margin:0 auto;
+  position:relative;
+}
+.mockup-phone img{
+  border-radius:0;
+  display:block;
+  width:100%;
+}
+
+/* ===== RESPONSIVE: AHA MOMENTS GRID ===== */
+@media(max-width:768px){
+  .slide[data-slide="4"] .slide-content > .reveal:last-of-type > div:first-child {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  .mockup-phone{
+    max-width:180px;
+  }
+}
+</style>
 </head>
 <body>
 
-    <div class="screen active" id="screen1">
-        <div class="screen-header">
-            <div class="screen-title">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-                <span>Body Intelligence</span>
-                <span class="peakiq-badge">Powered by PeakIQ</span>
-            </div>
-        </div>
+<div id="cursor-spotlight"></div>
+<div id="cursor-dot"></div>
 
-        <div class="card card-large recovery-layout">
-            <div class="recovery-gauge">
-                <svg class="gauge-circle" viewBox="0 0 200 200" style="width: 100%; height: 100%;">
-                    <circle class="gauge-bg" cx="100" cy="100" r="88"></circle>
-                    <circle class="gauge-fill" cx="100" cy="100" r="88" 
-                            stroke-dasharray="553" 
-                            stroke-dashoffset="108"
-                            style="stroke: var(--coros-green);"></circle>
-                </svg>
-                <div class="gauge-center">
-                    <div class="gauge-value">82</div>
-                    <div class="gauge-max">/100</div>
-                    <div class="gauge-label">Recovery Score</div>
-                </div>
-            </div>
+<div id="progress-bar" style="width:0%"></div>
 
-            <div class="insight-text">
-                <div class="insight-greeting">Good morning.</div>
-                Recovery is strong. HRV up 12% from yesterday. Your body has fully absorbed Saturday's long run. Today's window: <strong style="color: var(--coros-orange);">aerobic base work</strong>.
-            </div>
-        </div>
+<div id="slide-nav"></div>
+<div id="slide-counter"></div>
 
-        <div class="metric-row">
-            <div class="metric-card">
-                <div class="metric-label">Sleep Quality</div>
-                <div class="metric-value">87<span class="metric-unit">/100</span></div>
-                <div class="metric-detail">7h 23m • 1h 48m deep</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Readiness</div>
-                <div class="metric-value" style="color: var(--coros-green);">High</div>
-                <div class="metric-detail">All systems green</div>
-            </div>
-        </div>
+<div id="deck">
 
-        <div class="card">
-            <div class="metric-label">Fatigue Load</div>
-            <div class="metric-value" style="font-size: 20px; color: var(--coros-yellow);">Moderate</div>
-            <div class="metric-detail">3-day trend declining</div>
-        </div>
+<div class="slide active" data-slide="1">
+  <canvas class="particle-canvas" id="particles-1"></canvas>
+  <div class="blob" style="width:500px;height:500px;background:radial-gradient(circle,rgba(0,224,176,0.2),transparent);top:-10%;left:-10%;animation-delay:0s"></div>
+  <div class="blob" style="width:400px;height:400px;background:radial-gradient(circle,rgba(0,180,216,0.15),transparent);bottom:-10%;right:-5%;animation-delay:3s"></div>
+  <div class="blob" style="width:350px;height:350px;background:radial-gradient(circle,rgba(124,58,237,0.12),transparent);top:30%;right:20%;animation-delay:6s"></div>
+  <div class="slide-content text-center">
+    <div class="reveal hero-orb" style="transition-delay:0.1s"><img src="./assets/peakIQ-orb-final.png" alt="PeakIQ Orb"></div>
+    <h1 class="reveal heading h1" style="transition-delay:0.25s">PeakIQ.ai <span class="gradient-text">— The Autonomous AI Brain</span><br>for Every Athlete's Body</h1>
+    <p class="reveal caption" style="transition-delay:0.4s">Partner Intelligence Deck</p>
+    <div class="reveal badge-row" style="transition-delay:0.55s">
+      <span class="badge" style="border-color:rgba(255,140,0,0.5); color:rgba(255,140,0,0.9); font-size:16px; padding: 10px 24px;">Prepared for COROS</span>
     </div>
+  </div>
+</div>
 
-    <div class="screen" id="screen2">
-        <div class="screen-header">
-            <div class="screen-title">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-                <span>Today's Workout</span>
-                <span class="peakiq-badge">Powered by PeakIQ</span>
-            </div>
-        </div>
-
-        <div class="watch-mockup">
-            <div class="watch-screen">
-                <div class="watch-label">AI WORKOUT</div>
-                <div class="watch-workout-title">Easy Run</div>
-                <div class="watch-distance">8.0 km</div>
-                <div class="watch-zone">Zone 2 • Est. 42:00</div>
-                <div class="watch-hr">Target HR: 128-142 bpm</div>
-                <div class="watch-subtitle">Based on your current recovery and training load</div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="alert-title" style="color: var(--coros-orange); margin-bottom: 12px;">Why this workout?</div>
-            <div class="insight-text" style="margin-bottom: 0;">
-                Your recovery score (82/100) indicates strong adaptation. HRV is elevated, resting HR is down 3bpm from your 7-day average. This is the perfect window for aerobic stimulus without systemic stress.
-            </div>
-        </div>
-
-        <div class="card" style="background: rgba(255, 107, 0, 0.05); border-color: rgba(255, 107, 0, 0.2);">
-            <div class="metric-label" style="color: var(--coros-orange);">Workout Details</div>
-            <div style="font-size: 13px; line-height: 1.6; color: var(--coros-text-secondary); margin-top: 12px;">
-                • Stay in Z2 (128-142 bpm)<br>
-                • Conversational pace<br>
-                • Focus on aerobic efficiency<br>
-                • Auto-sync to your COROS watch
-            </div>
-        </div>
+<div class="slide" data-slide="2">
+  <div class="blob" style="width:450px;height:450px;background:radial-gradient(circle,rgba(0,224,176,0.15),transparent);top:5%;right:-8%;animation-delay:1s"></div>
+  <div class="blob" style="width:380px;height:380px;background:radial-gradient(circle,rgba(124,58,237,0.1),transparent);bottom:10%;left:-5%;animation-delay:4s"></div>
+  <canvas class="particle-canvas" id="particles-2"></canvas>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s">The Problem</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s">Your Users Spent <span class="gradient-text">$800</span> on a Watch.<br>They Still Can't Answer...</h2>
+    <div class="reveal grid-3" style="transition-delay:0.35s;margin-top:16px">
+      <div class="glass" style="text-align:left">
+        <p class="body-lg" style="font-style:italic;color:rgba(224,230,240,0.65)">"Should I train hard today or take it easy?"</p>
+      </div>
+      <div class="glass" style="text-align:left">
+        <p class="body-lg" style="font-style:italic;color:rgba(224,230,240,0.65)">"Why am I so tired even though I slept 8 hours?"</p>
+      </div>
+      <div class="glass" style="text-align:left">
+        <p class="body-lg" style="font-style:italic;color:rgba(224,230,240,0.65)">"Is this soreness normal or an injury warning?"</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="screen" id="screen3">
-        <div class="screen-header">
-            <div class="screen-title">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-                <span>Alert</span>
-                <span class="peakiq-badge">Powered by PeakIQ</span>
-            </div>
-        </div>
-
-        <div class="notification-banner">
-            <span class="notification-icon">⚠️</span>
-            <span class="notification-text">Overtraining Signal Detected — Tap for details</span>
-        </div>
-
-        <div class="card alert-card">
-            <div class="alert-icon">🚨</div>
-            <div class="alert-title">Elevated Overtraining Risk</div>
-            <div class="alert-text">
-                Your resting heart rate has risen <strong>8bpm</strong> over the past 5 days while HRV decreased <strong>15%</strong>. Combined with last week's <strong>12% volume increase</strong>, this indicates elevated overtraining risk.
-            </div>
-        </div>
-
-        <div class="card warning-card">
-            <div class="alert-title" style="color: var(--coros-orange);">Recommended Action</div>
-            <div class="alert-text">
-                Replace tomorrow's tempo run with a <strong>recovery swim or complete rest day</strong>. Resume intensity when HRV rebounds above your 30-day baseline.
-            </div>
-            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 107, 0, 0.2);">
-                <div style="font-size: 12px; color: var(--coros-text-muted); margin-bottom: 8px;">CURRENT STATUS</div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <span style="font-size: 13px; color: var(--coros-text-secondary);">Current HRV</span>
-                    <span style="font-size: 14px; font-weight: 700; color: var(--coros-red);">58ms</span>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 13px; color: var(--coros-text-secondary);">30-day Baseline</span>
-                    <span style="font-size: 14px; font-weight: 700; color: var(--coros-text-primary);">67ms</span>
-                </div>
-            </div>
-        </div>
+<div class="slide" data-slide="3">
+  <div class="blob" style="width:420px;height:420px;background:radial-gradient(circle,rgba(0,180,216,0.15),transparent);top:-5%;left:10%;animation-delay:2s"></div>
+  <div class="blob" style="width:350px;height:350px;background:radial-gradient(circle,rgba(0,224,176,0.1),transparent);bottom:-5%;right:15%;animation-delay:5s"></div>
+  <div class="slide-content">
+    <p class="reveal caption text-center" style="transition-delay:0.1s">The Solution</p>
+    <h2 class="reveal heading h2 text-center" style="transition-delay:0.2s"><span class="gradient-text">A Dedicated Team of AI Agents</span> Working 24/7</h2>
+    <div class="reveal" style="transition-delay:0.35s;margin-top:32px;display:flex;flex-direction:column;align-items:center;gap:28px;max-width:700px;margin-left:auto;margin-right:auto">
+      <div class="glass" style="padding:20px 28px;width:100%">
+        <p class="body" style="color:rgba(224,230,240,0.85);text-align:center"><span style="color:#00e0b0;font-weight:600">&#x2713;</span>&ensp;Acts as <strong>Coach, Nutritionist &amp; Sports Physician</strong> — all in one</p>
+      </div>
+      <div class="glass" style="padding:20px 28px;width:100%">
+        <p class="body" style="color:rgba(224,230,240,0.85);text-align:center"><span style="color:#00e0b0;font-weight:600">&#x2713;</span>&ensp;Continuously analyzes <strong>Sleep · Workouts · Recovery · Nutrition</strong></p>
+      </div>
+      <div class="glass" style="padding:20px 28px;width:100%">
+        <p class="body" style="color:rgba(224,230,240,0.85);text-align:center"><span style="color:#00e0b0;font-weight:600">&#x2713;</span>&ensp;Delivers daily <strong>&quot;Aha Moments&quot;</strong> — real insights, triggered automatically</p>
+      </div>
     </div>
+    <p class="reveal body-lg text-center" style="transition-delay:0.55s;margin-top:28px;color:rgba(0,224,176,0.6);font-style:italic">See what that looks like in real life &rarr;</p>
+  </div>
+</div>
 
-    <div class="screen" id="screen4">
-        <div class="screen-header">
-            <div class="screen-title" style="font-size: 22px;">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-                <span>Tel Aviv Marathon Taper</span>
-                <span class="peakiq-badge">Powered by PeakIQ</span>
-            </div>
+<div class="slide" data-slide="4">
+  <div class="blob" style="width:380px;height:380px;background:radial-gradient(circle,rgba(0,224,176,0.12),transparent);top:-8%;right:5%;animation-delay:1s"></div>
+  <div class="blob" style="width:320px;height:320px;background:radial-gradient(circle,rgba(124,58,237,0.1),transparent);bottom:-5%;left:10%;animation-delay:4s"></div>
+  <div class="slide-content">
+    <p class="reveal caption text-center" style="transition-delay:0.1s">Real Product. Real Insights.</p>
+    <h2 class="reveal heading h2 text-center" style="transition-delay:0.2s">The Daily <span class="gradient-text">Aha Moments</span></h2>
+    <p class="reveal body-lg text-center" style="transition-delay:0.3s;max-width:600px;margin:8px auto 0">PeakIQ detects what humans miss — and tells your users before it matters.</p>
+    <div class="reveal" style="transition-delay:0.45s;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:32px;max-width:900px;margin-left:auto;margin-right:auto">
+      <div style="text-align:center">
+        <div class="mockup-phone">
+          <img src="assets/checking-illness.jpg" alt="PeakIQ detecting early signs of illness" style="width:100%;display:block">
         </div>
-
-        <div style="text-align: center; margin-bottom: 28px;">
-            <div style="font-size: 48px; font-weight: 700; color: var(--coros-orange);">14</div>
-            <div style="font-size: 13px; color: var(--coros-text-secondary); text-transform: uppercase; letter-spacing: 1px;">Days to Race</div>
+        <p class="caption" style="margin-top:12px;color:rgba(224,230,240,0.6);letter-spacing:0.06em">Illness Detection</p>
+      </div>
+      <div style="text-align:center">
+        <div class="mockup-phone">
+          <img src="assets/checking-injury.jpg" alt="PeakIQ preventing potential injury" style="width:100%;display:block">
         </div>
-
-        <div class="timeline">
-            <div class="timeline-item go">
-                <div class="timeline-day">Day 14</div>
-                <div class="timeline-title">Last Long Run — 28K easy</div>
-                <div class="timeline-text">This is your final distance stimulus. Trust the training bank.</div>
-            </div>
-
-            <div class="timeline-item caution">
-                <div class="timeline-day">Day 10</div>
-                <div class="timeline-title">Volume Drops 40% Today</div>
-                <div class="timeline-text">Your body shifts from building to absorbing. Adaptation accelerates.</div>
-            </div>
-
-            <div class="timeline-item caution">
-                <div class="timeline-day">Day 7</div>
-                <div class="timeline-title">Sharpening — 6×800m @ Race Pace</div>
-                <div class="timeline-text">Last hard effort. Confirms speed without depleting reserves.</div>
-            </div>
-
-            <div class="timeline-item rest">
-                <div class="timeline-day">Day 5</div>
-                <div class="timeline-title">Easy 5K Only</div>
-                <div class="timeline-text">HRV should be climbing. Monitor sleep quality closely.</div>
-            </div>
-
-            <div class="timeline-item rest">
-                <div class="timeline-day">Day 3</div>
-                <div class="timeline-title">Complete Rest</div>
-                <div class="timeline-text">Trust the training. Your fitness peaks in 72 hours.</div>
-            </div>
-
-            <div class="timeline-item go">
-                <div class="timeline-day">Day 1 — Race Day</div>
-                <div class="timeline-title">Predicted Finish: 3:28–3:35</div>
-                <div class="timeline-text">Start conservative. Negative split from KM 30. Your data says you're ready.</div>
-            </div>
+        <p class="caption" style="margin-top:12px;color:rgba(224,230,240,0.6);letter-spacing:0.06em">Injury Prevention</p>
+      </div>
+      <div style="text-align:center">
+        <div class="mockup-phone">
+          <img src="assets/checking-unproductive.jpg" alt="PeakIQ flagging unproductive workout" style="width:100%;display:block">
         </div>
+        <p class="caption" style="margin-top:12px;color:rgba(224,230,240,0.6);letter-spacing:0.06em">Productivity Alert</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="screen" id="screen5">
-        <div class="screen-header">
-            <div class="screen-title">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-                <span>Run Complete</span>
-                <span class="peakiq-badge">Powered by PeakIQ</span>
-            </div>
-        </div>
-
-        <div class="card" style="background: rgba(0, 217, 140, 0.08); border-color: rgba(0, 217, 140, 0.3);">
-            <div class="debrief-summary">
-                <div class="debrief-stat">
-                    <div class="debrief-label">Distance</div>
-                    <div class="debrief-value">8.2 km</div>
-                </div>
-                <div class="debrief-stat">
-                    <div class="debrief-label">Time</div>
-                    <div class="debrief-value">41:38</div>
-                </div>
-                <div class="debrief-stat">
-                    <div class="debrief-label">Avg HR</div>
-                    <div class="debrief-value">136 bpm</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="insight-card">
-            <div class="insight-card-title">Cardiac Drift: 8%</div>
-            <div class="insight-card-text">
-                Excellent aerobic efficiency. Elite range is <10%. Your cardiovascular system maintained stable output throughout the run.
-            </div>
-        </div>
-
-        <div class="insight-card">
-            <div class="insight-card-title">Pace:HR Ratio Improved 3%</div>
-            <div class="insight-card-text">
-                Compared to last week's equivalent effort, you're running the same pace at a lower heart rate. This signals improved aerobic capacity.
-            </div>
-        </div>
-
-        <div class="insight-card">
-            <div class="insight-card-title">Training Effect Analysis</div>
-            <div class="insight-card-text">
-                Aerobic 3.2 • Anaerobic 0.4 — Well-targeted for today's goal. You stayed in the prescribed zone without straying into intensity.
-            </div>
-        </div>
-
-        <div class="next-session">
-            <div class="next-session-text">Your next recommended session:</div>
-            <div class="next-session-title">Threshold Intervals (Wednesday)</div>
-            <div style="font-size: 12px; color: var(--coros-text-muted); margin-top: 8px;">Your body will be ready.</div>
-        </div>
+<div class="slide" data-slide="5">
+  <div class="blob" style="width:500px;height:500px;background:radial-gradient(circle,rgba(0,224,176,0.12),transparent);bottom:-15%;left:-10%;animation-delay:0s"></div>
+  <div class="blob" style="width:400px;height:400px;background:radial-gradient(circle,rgba(124,58,237,0.1),transparent);top:-10%;right:-8%;animation-delay:4s"></div>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s">Market Opportunity</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s">The <span class="gradient-text">$45.5B</span> Connected Fitness Market</h2>
+    <div class="reveal grid-4" style="transition-delay:0.35s;margin-top:24px">
+      <div class="glass text-center">
+        <div class="stat-value" data-count="45.5" data-prefix="$" data-suffix="B">$0B</div>
+        <p class="stat-label">Global market by 2035</p>
+      </div>
+      <div class="glass text-center">
+        <div class="stat-value" data-count="150" data-suffix="M">0M</div>
+        <p class="stat-label">Strava active users</p>
+      </div>
+      <div class="glass text-center">
+        <div class="stat-value" data-count="1" data-suffix="M+" data-prefix="">1M+</div>
+        <p class="stat-label">Zwift paid subscribers</p>
+      </div>
+      <div class="glass text-center">
+        <div class="stat-value" data-count="14" data-suffix="%" data-prefix="">0%</div>
+        <p class="stat-label">Market CAGR 2024-2035</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="screen" id="screen6">
-        <div class="screen-header">
-            <div class="screen-title">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-                <span>Recovery Window</span>
-                <span class="peakiq-badge">Powered by PeakIQ</span>
-            </div>
-        </div>
-
-        <div class="nutrition-window">
-            <div class="nutrition-timer">28:34</div>
-            <div class="nutrition-label">Time Remaining</div>
-        </div>
-
-        <div class="card">
-            <div class="alert-title" style="color: var(--coros-orange); margin-bottom: 16px;">Optimal Recovery Nutrition</div>
-            <div class="insight-text" style="margin-bottom: 20px;">
-                Consume within <strong>30 minutes</strong> to maximize glycogen replenishment and muscle protein synthesis.
-            </div>
-
-            <div class="macro-display">
-                <div class="macro-box">
-                    <div class="macro-amount">45-60</div>
-                    <div class="macro-unit">grams</div>
-                    <div class="macro-name">Carbs</div>
-                </div>
-                <div class="macro-box">
-                    <div class="macro-amount">20-25</div>
-                    <div class="macro-unit">grams</div>
-                    <div class="macro-name">Protein</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="alert-title" style="margin-bottom: 16px;">Today's Fuel Status</div>
-            <div class="fuel-status">
-                <div class="fuel-row">
-                    <span class="fuel-label">Estimated Expenditure</span>
-                    <span class="fuel-value">2,840 kcal</span>
-                </div>
-                <div class="fuel-row">
-                    <span class="fuel-label">Current Intake (tracked)</span>
-                    <span class="fuel-value">1,200 kcal</span>
-                </div>
-                <div class="fuel-row">
-                    <span class="fuel-label">Deficit</span>
-                    <span class="fuel-value fuel-deficit">-1,640 kcal</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="priority-note">
-            <div class="priority-text">
-                <strong>Priority:</strong> Replenish glycogen stores before tomorrow's session. Your body needs fuel to adapt to today's training stimulus.
-            </div>
-        </div>
+<div class="slide" data-slide="6">
+  <div class="blob" style="width:450px;height:450px;background:radial-gradient(circle,rgba(0,180,216,0.12),transparent);top:10%;left:-8%;animation-delay:2s"></div>
+  <div class="blob" style="width:380px;height:380px;background:radial-gradient(circle,rgba(0,224,176,0.1),transparent);bottom:5%;right:-5%;animation-delay:5s"></div>
+  <canvas class="particle-canvas" id="particles-6"></canvas>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s">Traction</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s"><span class="gradient-text">Validated Traction</span></h2>
+    <div class="reveal grid-3" style="transition-delay:0.35s;margin-top:24px">
+      <div class="glass text-center">
+        <div class="stat-value">$6&ndash;7</div>
+        <p class="stat-label">Cost Per Trial*</p>
+      </div>
+      <div class="glass text-center">
+        <div class="stat-value">$140/yr</div>
+        <p class="stat-label">Annual LTV</p>
+        <p class="body" style="color:rgba(224,230,240,0.5);font-size:0.8rem;margin-top:6px">Validated willingness-to-pay</p>
+      </div>
+      <div class="glass text-center">
+        <div class="stat-value">28:1</div>
+        <p class="stat-label">LTV:CAC (at 15% conversion)</p>
+        <p class="body" style="color:rgba(224,230,240,0.5);font-size:0.8rem;margin-top:6px">Scales to 50:1 via partner channels</p>
+      </div>
     </div>
-
-    <div class="nav-arrow left" onclick="prevScreen()">
-        <span style="color: var(--coros-orange); font-size: 20px;">←</span>
+    <div class="reveal badge-row" style="transition-delay:0.5s">
+      <span class="badge" style="border-color:rgba(0,224,176,0.25);color:rgba(0,224,176,0.7)">Garmin LIVE</span>
+      <span class="badge" style="border-color:rgba(0,224,176,0.25);color:rgba(0,224,176,0.7)">Strava APPROVED</span>
     </div>
-    <div class="nav-arrow right" onclick="nextScreen()">
-        <span style="color: var(--coros-orange); font-size: 20px;">→</span>
+    <p class="reveal" style="transition-delay:0.6s;font-size:0.7rem;color:rgba(224,230,240,0.35);margin-top:24px">*Connected Garmin user completing onboarding</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="7">
+  <div class="blob" style="width:480px;height:480px;background:radial-gradient(circle,rgba(124,58,237,0.12),transparent);top:-8%;right:10%;animation-delay:1s"></div>
+  <div class="blob" style="width:360px;height:360px;background:radial-gradient(circle,rgba(0,224,176,0.1),transparent);bottom:-5%;left:5%;animation-delay:4s"></div>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s">Core Insight</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s">You See the Workout.<br><span class="gradient-text">We See the Rest of the Day.</span></h2>
+    <div class="reveal grid-2" style="transition-delay:0.35s;margin-top:24px;max-width:900px">
+      <div class="glass text-center">
+        <p class="caption" style="margin-bottom:16px;color:rgba(224,230,240,0.4)">Strava / Zwift Today</p>
+        <p style="font-size:3rem;font-weight:700;color:rgba(224,230,240,0.2)">1 hr</p>
+        <p class="body" style="margin-top:12px;color:rgba(224,230,240,0.4)">Workout data only</p>
+      </div>
+      <div class="glass highlight text-center">
+        <p class="caption" style="margin-bottom:16px">With PeakIQ</p>
+        <p class="gradient-text" style="font-size:3rem;font-weight:700">23 hrs</p>
+        <p class="body" style="margin-top:12px;color:rgba(224,230,240,0.7)">Sleep &bull; Recovery &bull; HRV &bull; Nutrition &bull; Stress</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="nav-dots">
-        <div class="nav-dot active" onclick="goToScreen(1)"></div>
-        <div class="nav-dot" onclick="goToScreen(2)"></div>
-        <div class="nav-dot" onclick="goToScreen(3)"></div>
-        <div class="nav-dot" onclick="goToScreen(4)"></div>
-        <div class="nav-dot" onclick="goToScreen(5)"></div>
-        <div class="nav-dot" onclick="goToScreen(6)"></div>
+<div class="slide" data-slide="8">
+  <div class="blob" style="width:400px;height:400px;background:radial-gradient(circle,rgba(0,180,216,0.12),transparent);top:5%;left:-5%;animation-delay:1s"></div>
+  <div class="blob" style="width:350px;height:350px;background:radial-gradient(circle,rgba(124,58,237,0.08),transparent);bottom:10%;right:-3%;animation-delay:3s"></div>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s">Integration</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s">Three <span class="gradient-text">Integration Models</span></h2>
+    <div class="reveal grid-3" style="transition-delay:0.35s;margin-top:24px">
+      <div class="glass text-center">
+        <p class="caption" style="margin-bottom:12px;color:rgba(0,224,176,0.5)">Path A</p>
+        <p style="font-size:1.25rem;font-weight:600;color:rgba(224,230,240,0.9);margin-bottom:8px">API Integration</p>
+        <p class="body" style="color:rgba(224,230,240,0.4)">30 days</p>
+      </div>
+      <div class="glass highlight text-center">
+        <p class="caption" style="margin-bottom:12px">Path B</p>
+        <p style="font-size:1.25rem;font-weight:600;color:rgba(224,230,240,0.9);margin-bottom:8px">White-Label in Your App</p>
+        <p class="body" style="color:rgba(224,230,240,0.4)">30 days</p>
+      </div>
+      <div class="glass text-center">
+        <p class="caption" style="margin-bottom:12px;color:rgba(0,224,176,0.5)">Path C</p>
+        <p style="font-size:1.25rem;font-weight:600;color:rgba(224,230,240,0.9);margin-bottom:8px">Native Apps</p>
+        <p class="body" style="color:rgba(224,230,240,0.4)">2-3 months</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <script>
-        let currentScreen = 1;
-        const totalScreens = 6;
+<div class="slide accent-orange" data-slide="9">
+  <div class="blob" style="width:500px;height:500px;background:radial-gradient(circle,rgba(255,140,0,0.15),transparent);top:-10%;left:-8%;animation-delay:0s"></div>
+  <div class="blob" style="width:380px;height:380px;background:radial-gradient(circle,rgba(255,107,53,0.1),transparent);bottom:-5%;right:-5%;animation-delay:3s"></div>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s;color:rgba(255,140,0,0.7)">COROS Partnership</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s">COROS — <span class="gradient-text">The 7-12 Search Gap</span></h2>
+    <div class="reveal grid-3" style="transition-delay:0.35s;margin-top:24px">
+      <div class="glass text-center">
+        <p class="stat-value" style="font-size:2rem">7-12</p>
+        <p class="stat-label">COROS Google Search Interest</p>
+      </div>
+      <div class="glass text-center">
+        <p class="stat-value" style="font-size:2rem">76</p>
+        <p class="stat-label">Garmin Google Search Interest</p>
+      </div>
+      <div class="glass text-center">
+        <p class="stat-value" style="font-size:1.5rem">$3.50-5.00</p>
+        <p class="stat-label">Per active user/month</p>
+      </div>
+    </div>
+    <div class="reveal glass" style="transition-delay:0.5s;margin-top:16px;padding:20px 28px;max-width:600px">
+      <p class="body" style="color:rgba(224,230,240,0.6)"><strong style="color:rgba(224,230,240,0.85)">Contact:</strong> Lewis Wu, CEO — COROS</p>
+    </div>
+  </div>
+</div>
 
-        function goToScreen(n) {
-            document.querySelector('.screen.active').classList.remove('active');
-            document.querySelector(`#screen${n}`).classList.add('active');
-            
-            document.querySelectorAll('.nav-dot').forEach((dot, index) => {
-                dot.classList.toggle('active', index + 1 === n);
-            });
-            
-            currentScreen = n;
+<div class="slide" data-slide="10">
+  <div class="blob" style="width:420px;height:420px;background:radial-gradient(circle,rgba(0,224,176,0.1),transparent);top:-8%;left:-5%;animation-delay:2s"></div>
+  <div class="blob" style="width:350px;height:350px;background:radial-gradient(circle,rgba(0,180,216,0.08),transparent);bottom:-5%;right:10%;animation-delay:5s"></div>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s">Pricing</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s">Transparent Pricing with <span class="gradient-text">Enterprise SLA</span></h2>
+    <div class="reveal pricing-grid" style="transition-delay:0.35s;margin-top:24px">
+      <div class="glass price-card">
+        <p class="price-tier">Free</p>
+        <p class="price-users">0 — 1K users</p>
+        <p class="price-amount">$5</p>
+        <p class="price-period">/user/mo</p>
+      </div>
+      <div class="glass price-card">
+        <p class="price-tier">Growth</p>
+        <p class="price-users">1K — 10K users</p>
+        <p class="price-amount">$3.50</p>
+        <p class="price-period">/user/mo</p>
+      </div>
+      <div class="glass price-card highlighted">
+        <p class="price-tier">Scale</p>
+        <p class="price-users">10K — 100K users</p>
+        <p class="price-amount">$2.00</p>
+        <p class="price-period">/user/mo</p>
+      </div>
+      <div class="glass price-card">
+        <p class="price-tier">Enterprise</p>
+        <p class="price-users">100K+ users</p>
+        <p class="price-amount">$1.50</p>
+        <p class="price-period">/user/mo</p>
+      </div>
+    </div>
+    <div class="reveal sla-row" style="transition-delay:0.5s">
+      <div><p class="sla-val">99.5%</p><p class="sla-label">SLA</p></div>
+      <div><p class="sla-val">99.95%</p><p class="sla-label">SLA</p></div>
+      <div><p class="sla-val">99.99%</p><p class="sla-label">SLA</p></div>
+      <div><p class="sla-val">99.99%</p><p class="sla-label">SLA + Dedicated Support</p></div>
+    </div>
+    <p class="reveal body" style="transition-delay:0.6s;margin-top:20px;color:rgba(0,224,176,0.6);font-weight:600">80%+ Gross Margin at Scale</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="11">
+  <div class="blob" style="width:400px;height:400px;background:radial-gradient(circle,rgba(0,224,176,0.08),transparent);bottom:-10%;left:5%;animation-delay:1s"></div>
+  <div class="blob" style="width:350px;height:350px;background:radial-gradient(circle,rgba(124,58,237,0.08),transparent);top:10%;right:-5%;animation-delay:4s"></div>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s">Competitive Landscape</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s">Why Partners Choose <span class="gradient-text">PeakIQ</span></h2>
+    <div class="reveal" style="transition-delay:0.35s;margin-top:24px;width:100%;overflow-x:auto">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th style="min-width:200px">Feature</th>
+            <th>PeakIQ</th>
+            <th>Garmin Connect+</th>
+            <th>Strava AI</th>
+            <th>WHOOP Coach</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Multi-modal analysis (Sleep+Workout+Recovery)</td>
+            <td class="check">&#x2713; Full</td>
+            <td class="partial">Partial</td>
+            <td class="partial">Partial</td>
+            <td class="partial">Partial</td>
+          </tr>
+          <tr>
+            <td>Autonomous daily insights (no manual input)</td>
+            <td class="check">&#x2713;</td>
+            <td class="cross">&#x2717;</td>
+            <td class="cross">&#x2717;</td>
+            <td class="cross">&#x2717;</td>
+          </tr>
+          <tr>
+            <td>Cross-platform data aggregation</td>
+            <td class="check">&#x2713;</td>
+            <td class="cross">Siloed</td>
+            <td class="cross">Siloed</td>
+            <td class="cross">Siloed</td>
+          </tr>
+          <tr>
+            <td>White-label ready</td>
+            <td class="check">&#x2713; 30 days</td>
+            <td class="cross">N/A</td>
+            <td class="cross">N/A</td>
+            <td class="cross">N/A</td>
+          </tr>
+          <tr>
+            <td>API-first architecture</td>
+            <td class="check">&#x2713;</td>
+            <td class="cross">Limited</td>
+            <td class="cross">Limited</td>
+            <td class="cross">Limited</td>
+          </tr>
+          <tr>
+            <td>Zero CAC for partners</td>
+            <td class="check">&#x2713;</td>
+            <td class="cross">&#x2717;</td>
+            <td class="cross">&#x2717;</td>
+            <td class="cross">&#x2717;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="12">
+  <div class="blob" style="width:460px;height:460px;background:radial-gradient(circle,rgba(0,224,176,0.12),transparent);top:-5%;right:-8%;animation-delay:2s"></div>
+  <div class="blob" style="width:380px;height:380px;background:radial-gradient(circle,rgba(0,180,216,0.08),transparent);bottom:5%;left:-5%;animation-delay:5s"></div>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s">Growth Engine</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s"><span class="gradient-text">Tier-2 Seeding</span> → Tier-1 Acquisition</h2>
+    <div class="reveal grid-2" style="transition-delay:0.35s;margin-top:24px;max-width:1000px">
+      <div class="glass" style="text-align:left">
+        <p class="caption" style="margin-bottom:16px;color:rgba(0,224,176,0.6)">Seed Athletes (30-Day Challenge)</p>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <p class="body" style="color:rgba(224,230,240,0.8)"><strong>Nick Bare</strong> <span style="color:rgba(224,230,240,0.4)">— 3.2M followers</span></p>
+          <p class="body" style="color:rgba(224,230,240,0.8)"><strong>Jeff Nippard</strong> <span style="color:rgba(224,230,240,0.4)">— 4.8M followers</span></p>
+          <p class="body" style="color:rgba(224,230,240,0.8)"><strong>Lionel Sanders</strong> <span style="color:rgba(224,230,240,0.4)">— 500K followers</span></p>
+        </div>
+      </div>
+      <div class="glass" style="text-align:left">
+        <p class="caption" style="margin-bottom:16px;color:rgba(124,58,237,0.7)">Target Tier-1</p>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <p class="body" style="color:rgba(224,230,240,0.8)"><strong>Eliud Kipchoge</strong> <span style="color:rgba(224,230,240,0.4)">— 5M followers</span></p>
+          <p class="body" style="color:rgba(224,230,240,0.8)"><strong>Kilian Jornet</strong> <span style="color:rgba(224,230,240,0.4)">— 2M followers</span></p>
+          <p class="body" style="color:rgba(224,230,240,0.8)"><strong>Cristiano Ronaldo</strong> <span style="color:rgba(224,230,240,0.4)">— 640M followers</span></p>
+        </div>
+      </div>
+    </div>
+    <p class="reveal body" style="transition-delay:0.5s;margin-top:20px;color:rgba(0,224,176,0.6);font-weight:500">Each athlete = 10-50K signups in 30 days</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="13">
+  <div class="blob" style="width:450px;height:450px;background:radial-gradient(circle,rgba(0,180,216,0.1),transparent);top:-5%;left:10%;animation-delay:1s"></div>
+  <div class="blob" style="width:350px;height:350px;background:radial-gradient(circle,rgba(124,58,237,0.08),transparent);bottom:10%;right:-3%;animation-delay:4s"></div>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s">Roadmap</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s"><span class="gradient-text">War Room</span> to M&amp;A Trigger</h2>
+    <div class="reveal timeline" style="transition-delay:0.35s;margin-top:32px">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div><p class="tl-label">Month 0</p><p class="tl-text">War Room → Strategy Lock</p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div><p class="tl-label">Month 1-3</p><p class="tl-text">COROS + Zwift Pilots</p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div><p class="tl-label">Month 4-8</p><p class="tl-text">Strava Integration + Viral Seeding</p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div><p class="tl-label">Month 9-18</p><p class="tl-text">Infrastructure Scale + Oura Conversations</p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div><p class="tl-label">Month 18-24</p><p class="tl-text">M&amp;A Trigger Event</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="14">
+  <div class="blob" style="width:500px;height:500px;background:radial-gradient(circle,rgba(0,224,176,0.12),transparent);top:-10%;right:-8%;animation-delay:0s"></div>
+  <div class="blob" style="width:400px;height:400px;background:radial-gradient(circle,rgba(124,58,237,0.1),transparent);bottom:-5%;left:-5%;animation-delay:3s"></div>
+  <div class="slide-content text-center">
+    <p class="reveal caption" style="transition-delay:0.1s">Endgame</p>
+    <h2 class="reveal heading h2" style="transition-delay:0.2s">Three Paths to <span class="gradient-text">$50-150M Acquisition</span></h2>
+    <div class="reveal grid-3" style="transition-delay:0.35s;margin-top:24px">
+      <div class="glass text-center accent-violet">
+        <p class="gradient-text" style="font-size:1.8rem;font-weight:700;margin-bottom:4px">$50-75M</p>
+        <p style="font-size:1.1rem;font-weight:600;color:rgba(224,230,240,0.85);margin-bottom:8px">Strava</p>
+        <p class="body" style="color:rgba(224,230,240,0.4)">18-month timeline<br>IPO leverage</p>
+      </div>
+      <div class="glass text-center accent-purple">
+        <p class="gradient-text" style="font-size:1.8rem;font-weight:700;margin-bottom:4px">$40-80M</p>
+        <p style="font-size:1.1rem;font-weight:600;color:rgba(224,230,240,0.85);margin-bottom:8px">Oura</p>
+        <p class="body" style="color:rgba(224,230,240,0.4)">24-month timeline<br>Cross-platform moat</p>
+      </div>
+      <div class="glass text-center">
+        <p class="gradient-text" style="font-size:1.8rem;font-weight:700;margin-bottom:4px">$75-150M</p>
+        <p style="font-size:1.1rem;font-weight:600;color:rgba(224,230,240,0.85);margin-bottom:8px">Garmin</p>
+        <p class="body" style="color:rgba(224,230,240,0.4)">24-month timeline<br>Acqui-hire for AI team</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="15">
+  <canvas class="particle-canvas" id="particles-15"></canvas>
+  <div class="blob" style="width:550px;height:550px;background:radial-gradient(circle,rgba(0,224,176,0.18),transparent);top:-15%;left:-10%;animation-delay:0s"></div>
+  <div class="blob" style="width:450px;height:450px;background:radial-gradient(circle,rgba(0,180,216,0.12),transparent);bottom:-10%;right:-8%;animation-delay:3s"></div>
+  <div class="blob" style="width:380px;height:380px;background:radial-gradient(circle,rgba(124,58,237,0.1),transparent);top:40%;right:25%;animation-delay:6s"></div>
+  <div class="slide-content text-center flex-center">
+    <div class="reveal hero-orb" style="transition-delay:0.1s;width:120px;height:120px"><img src="./assets/peakIQ-orb-final.png" alt="PeakIQ Orb"></div>
+    <h2 class="reveal heading h1" style="transition-delay:0.25s">Let's Build the Future of<br><span class="gradient-text">Athlete Intelligence</span></h2>
+    <div class="reveal badge-row" style="transition-delay:0.4s;gap:16px">
+      <span class="badge" style="border-color:rgba(0,224,176,0.3);color:#00e0b0;font-size:15px;padding:10px 24px">Partnership</span>
+      <span class="badge" style="border-color:rgba(0,180,216,0.3);color:#00b4d8;font-size:15px;padding:10px 24px">Pilot</span>
+      <span class="badge" style="border-color:rgba(124,58,237,0.3);color:#7c3aed;font-size:15px;padding:10px 24px">Next Step</span>
+    </div>
+    <a href="mailto:hello@peakiq.ai" class="reveal" style="transition-delay:0.55s;color:rgba(0,224,176,0.8);font-size:1.1rem;text-decoration:none;letter-spacing:0.03em;margin-top:8px" target="_blank" rel="noopener noreferrer">hello@peakiq.ai</a>
+  </div>
+</div>
+
+</div><script>
+(function() {
+  'use strict';
+
+  /* ===== STATE ===== */
+  let currentSlide = 0;
+  let visibleSlides = Array.from(document.querySelectorAll('.slide'));
+  let isAnimating = false;
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  /* ===== CURSOR SPOTLIGHT ===== */
+  const spotlight = document.getElementById('cursor-spotlight');
+  const cursorDot = document.getElementById('cursor-dot');
+  let mouseX = 0, mouseY = 0;
+  let spotX = 0, spotY = 0;
+
+  document.addEventListener('mousemove', function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursorDot.style.left = mouseX + 'px';
+    cursorDot.style.top = mouseY + 'px';
+  });
+
+  function animateCursor() {
+    spotX += (mouseX - spotX) * 0.08;
+    spotY += (mouseY - spotY) * 0.08;
+    spotlight.style.left = spotX + 'px';
+    spotlight.style.top = spotY + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  /* ===== PARTICLE SYSTEM ===== */
+  function initParticles(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const count = 60;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        r: Math.random() * 2 + 0.5,
+        alpha: Math.random() * 0.4 + 0.1
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(function(p) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,224,176,' + p.alpha + ')';
+        ctx.fill();
+      });
+
+      // Draw connections
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          var dx = particles[i].x - particles[j].x;
+          var dy = particles[i].y - particles[j].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = 'rgba(0,180,216,' + (0.08 * (1 - dist / 120)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  initParticles('particles-1');
+  initParticles('particles-15');
+
+  /* ===== NAVIGATION ===== */
+  function buildNav() {
+    var nav = document.getElementById('slide-nav');
+    nav.innerHTML = '';
+    visibleSlides.forEach(function(_, i) {
+      var dot = document.createElement('button');
+      dot.className = 'nav-dot' + (i === currentSlide ? ' active' : '');
+      dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      dot.addEventListener('click', function() { goToSlide(i); });
+      nav.appendChild(dot);
+    });
+    updateCounter();
+    updateProgress();
+  }
+
+  function updateCounter() {
+    document.getElementById('slide-counter').textContent =
+      (currentSlide + 1) + ' / ' + visibleSlides.length;
+  }
+
+  function updateProgress() {
+    var pct = visibleSlides.length > 1
+      ? (currentSlide / (visibleSlides.length - 1)) * 100
+      : 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  }
+
+  function goToSlide(index) {
+    if (isAnimating || index === currentSlide || index < 0 || index >= visibleSlides.length) return;
+    isAnimating = true;
+
+    var oldSlide = visibleSlides[currentSlide];
+    var newSlide = visibleSlides[index];
+    var goingForward = index > currentSlide;
+
+    // Exit old slide
+    oldSlide.classList.remove('active');
+    oldSlide.classList.add(goingForward ? 'exit-left' : '');
+    oldSlide.style.transform = goingForward ? 'translateX(-60px)' : 'translateX(60px)';
+    oldSlide.style.opacity = '0';
+
+    // Prepare new slide entry direction
+    newSlide.style.transition = 'none';
+    newSlide.style.transform = goingForward ? 'translateX(60px)' : 'translateX(-60px)';
+    newSlide.style.opacity = '0';
+
+    // Force reflow
+    void newSlide.offsetWidth;
+
+    // Animate in
+    newSlide.style.transition = 'opacity 0.6s cubic-bezier(0.16,1,0.3,1),transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+    newSlide.classList.add('active');
+    newSlide.style.transform = 'translateX(0)';
+    newSlide.style.opacity = '1';
+
+    currentSlide = index;
+
+    // Update nav dots
+    document.querySelectorAll('.nav-dot').forEach(function(d, i) {
+      d.classList.toggle('active', i === currentSlide);
+    });
+    updateCounter();
+    updateProgress();
+
+    // Trigger reveal animations
+    triggerReveals(newSlide);
+
+    // Animate counters if present
+    animateCounters(newSlide);
+
+    // Init particles for specific slides on first visit
+    var slideNum = newSlide.getAttribute('data-slide');
+    if (slideNum === '2') initParticles('particles-2');
+    if (slideNum === '6') initParticles('particles-6');
+
+    setTimeout(function() {
+      isAnimating = false;
+      oldSlide.classList.remove('exit-left');
+    }, 650);
+  }
+
+  function nextSlide() { goToSlide(currentSlide + 1); }
+  function prevSlide() { goToSlide(currentSlide - 1); }
+
+  /* ===== REVEAL ANIMATIONS ===== */
+  function triggerReveals(slide) {
+    var reveals = slide.querySelectorAll('.reveal');
+    reveals.forEach(function(el, i) {
+      el.classList.remove('visible');
+      var delay = parseFloat(el.style.transitionDelay) || (i * 0.1);
+      setTimeout(function() {
+        el.classList.add('visible');
+      }, delay * 1000 + 100);
+    });
+  }
+
+  /* ===== ANIMATED COUNTERS ===== */
+  function animateCounters(slide) {
+    var counters = slide.querySelectorAll('[data-count]');
+    counters.forEach(function(el) {
+      var target = parseFloat(el.getAttribute('data-count'));
+      var prefix = el.getAttribute('data-prefix') || '';
+      var suffix = el.getAttribute('data-suffix') || '';
+      var duration = 1200;
+      var start = performance.now();
+      var isFloat = target % 1 !== 0;
+
+      function update(now) {
+        var elapsed = now - start;
+        var progress = Math.min(elapsed / duration, 1);
+        // Ease out cubic
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = target * eased;
+
+        if (isFloat) {
+          el.textContent = prefix + current.toFixed(1) + suffix;
+        } else {
+          el.textContent = prefix + Math.round(current) + suffix;
         }
 
-        function nextScreen() {
-            if (currentScreen < totalScreens) {
-                goToScreen(currentScreen + 1);
-            }
+        if (progress < 1) {
+          requestAnimationFrame(update);
         }
+      }
+      requestAnimationFrame(update);
+    });
+  }
 
-        function prevScreen() {
-            if (currentScreen > 1) {
-                goToScreen(currentScreen - 1);
-            }
-        }
+  /* ===== KEYBOARD NAVIGATION ===== */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      prevSlide();
+    }
+  });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextScreen();
-            if (e.key === 'ArrowLeft') prevScreen();
-        });
+  /* ===== TOUCH SWIPE ===== */
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
 
-        let touchStartX = 0;
-        let touchEndX = 0;
+  document.addEventListener('touchend', function(e) {
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx < 0) nextSlide();
+      else prevSlide();
+    }
+  }, { passive: true });
 
-        document.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
+  /* ===== MOUSE WHEEL ===== */
+  var wheelTimeout;
+  document.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    clearTimeout(wheelTimeout);
+    wheelTimeout = setTimeout(function() {
+      if (e.deltaY > 0) nextSlide();
+      else prevSlide();
+    }, 50);
+  }, { passive: false });
 
-        document.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
+  /* ===== INIT ===== */
+  buildNav();
+  triggerReveals(visibleSlides[0]);
 
-        function handleSwipe() {
-            if (touchEndX < touchStartX - 50) nextScreen();
-            if (touchEndX > touchStartX + 50) prevScreen();
-        }
-    </script>
+})();
+</script>
 </body>
 </html>
