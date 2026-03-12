@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Zwift × PeakIQ — Off-Bike Intelligence Layer</title>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --zwift-orange:#FC6719;
+  --zwift-orange-glow:rgba(252,103,25,0.25);
+  --zwift-orange-subtle:rgba(252,103,25,0.08);
+  --zwift-orange-mid:rgba(252,103,25,0.15);
+  --bg-deep:#0D0D1A;
+  --bg-main:#1B1B2F;
+  --bg-card:rgba(255,255,255,0.04);
+  --bg-card-hover:rgba(255,255,255,0.07);
+  --bg-glass:rgba(27,27,47,0.65);
+  --border-glass:rgba(255,255,255,0.08);
+  --border-glass-hover:rgba(252,103,25,0.2);
+  --text-primary:rgba(255,255,255,0.95);
+  --text-secondary:rgba(255,255,255,0.65);
+  --text-muted:rgba(255,255,255,0.4);
+  --green:#22C55E;
+  --green-bg:rgba(34,197,94,0.1);
+  --yellow:#FACC15;
+  --yellow-bg:rgba(250,204,21,0.1);
+  --red:#EF4444;
+  --red-bg:rgba(239,68,68,0.1);
+  --blue:#3B82F6;
+  --blue-bg:rgba(59,130,246,0.1);
+  --purple:#A855F7;
+  --purple-bg:rgba(168,85,247,0.1);
+  --radius:16px;
+  --radius-sm:10px;
+  --radius-xs:6px;
+  --font:'General Sans',system-ui,-apple-system,sans-serif;
+  --transition:0.4s cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:var(--font);background:var(--bg-deep);color:var(--text-primary);overflow:hidden;height:100dvh;width:100vw;position:relative}
+
+/* Container */
+.app{width:100%;height:100dvh;position:relative;overflow:hidden}
+.screens-wrapper{display:flex;width:600%;height:100%;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1)}
+.screen{width:calc(100%/6);height:100%;overflow-y:auto;overflow-x:hidden;flex-shrink:0;padding:0 0 100px 0;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+
+/* Top bar */
+.top-bar{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);background:rgba(13,13,26,0.75);border-bottom:1px solid var(--border-glass)}
+.top-bar-left{display:flex;align-items:center;gap:10px}
+.zwift-logo{font-size:20px;font-weight:700;color:var(--zwift-orange);letter-spacing:-0.5px}
+.top-bar-right{display:flex;align-items:center;gap:8px}
+.profile-dot{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--zwift-orange),#ff8a47);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff}
+
+/* PeakIQ badge */
+.peakiq-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase}
+.peakiq-badge .dot{width:5px;height:5px;border-radius:50%;background:var(--zwift-orange);animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
+
+/* Section */
+.section-pad{padding:20px 20px 0}
+.screen-header{padding:24px 20px 4px}
+.screen-title{font-size:22px;font-weight:700;letter-spacing:-0.5px;line-height:1.2}
+.screen-subtitle{font-size:13px;color:var(--text-secondary);margin-top:4px;line-height:1.5}
+.powered-line{display:flex;align-items:center;gap:6px;margin-top:10px}
+
+/* Glass card */
+.glass-card{background:var(--bg-card);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--border-glass);border-radius:var(--radius);padding:18px;margin-bottom:14px;transition:border-color var(--transition),background var(--transition)}
+.glass-card:hover{border-color:var(--border-glass-hover);background:var(--bg-card-hover)}
+.glass-card.highlight{border-color:rgba(252,103,25,0.25);background:rgba(252,103,25,0.04)}
+.glass-card.green-tint{border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.04)}
+.glass-card.yellow-tint{border-color:rgba(250,204,21,0.2);background:rgba(250,204,21,0.04)}
+.glass-card.red-tint{border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.04)}
+.glass-card.blue-tint{border-color:rgba(59,130,246,0.2);background:rgba(59,130,246,0.04)}
+
+.card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:8px}
+.card-value{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1.1}
+.card-value.orange{color:var(--zwift-orange)}
+.card-value.green{color:var(--green)}
+.card-value.yellow{color:var(--yellow)}
+.card-value.blue{color:var(--blue)}
+.card-desc{font-size:13px;line-height:1.55;color:var(--text-secondary);margin-top:6px}
+.card-desc strong{color:var(--text-primary);font-weight:600}
+
+/* Metric row */
+.metric-row{display:flex;gap:10px;margin-bottom:14px}
+.metric-box{flex:1;background:var(--bg-card);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:14px;text-align:center}
+.metric-box .val{font-size:20px;font-weight:700;letter-spacing:-0.5px}
+.metric-box .lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;margin-top:3px}
+
+/* Score ring */
+.score-ring-wrap{display:flex;align-items:center;gap:18px;margin-bottom:6px}
+.score-ring{position:relative;width:80px;height:80px;flex-shrink:0}
+.score-ring svg{width:80px;height:80px;transform:rotate(-90deg)}
+.score-ring .track{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:8}
+.score-ring .fill{fill:none;stroke:var(--zwift-orange);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)}
+.score-ring .score-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:700;color:var(--zwift-orange)}
+.score-ring .score-label{position:absolute;top:50%;left:50%;transform:translate(-50%,12px);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+
+/* Recommendation tag */
+.rec-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;margin-right:8px;margin-bottom:8px}
+.rec-tag.rest{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.rec-tag.spin{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(59,130,246,0.2)}
+.rec-tag.warn{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.rec-tag.tempo{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(250,204,21,0.2)}
+
+/* Chart area */
+.chart-area{width:100%;border-radius:var(--radius-sm);overflow:hidden;margin:12px 0}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:140px;padding:10px 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-col .bar{width:100%;border-radius:6px 6px 2px 2px;min-height:4px;transition:height 0.8s cubic-bezier(0.16,1,0.3,1)}
+.bar-col .day-label{font-size:10px;color:var(--text-muted);font-weight:500}
+.bar-col .tss-val{font-size:10px;color:var(--text-secondary);font-weight:600}
+
+/* Line chart */
+.line-chart-wrap{position:relative;height:160px;margin:12px 0;border-radius:var(--radius-sm);overflow:hidden}
+.line-chart-wrap svg{width:100%;height:100%}
+
+/* Separator */
+.sep{height:1px;background:var(--border-glass);margin:18px 0}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:12px 20px 28px;backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);background:rgba(13,13,26,0.85);border-top:1px solid var(--border-glass);gap:8px}
+.nav-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;transition:all var(--transition);padding:0}
+.nav-dot.active{background:var(--zwift-orange);box-shadow:0 0 12px var(--zwift-orange-glow);width:28px;border-radius:5px}
+.nav-label{position:fixed;bottom:58px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--text-muted);font-weight:500;letter-spacing:0.3px;white-space:nowrap;transition:opacity 0.3s}
+
+/* Data source badge */
+.data-source{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--radius-sm);background:rgba(252,103,25,0.05);border:1px solid rgba(252,103,25,0.12);margin-top:16px;margin-bottom:14px}
+.data-source .icon{font-size:14px}
+.data-source .text{font-size:11px;color:var(--text-secondary);line-height:1.4}
+.data-source .text strong{color:var(--zwift-orange);font-weight:600}
+
+/* Pre-ride popup style */
+.popup-card{background:rgba(27,27,47,0.92);backdrop-filter:blur(30px) saturate(1.8);-webkit-backdrop-filter:blur(30px) saturate(1.8);border:1px solid rgba(252,103,25,0.2);border-radius:20px;padding:24px;margin:12px 20px;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 0 1px rgba(252,103,25,0.08)}
+
+/* Progress bar */
+.progress-wrap{margin:10px 0}
+.progress-bar{height:8px;border-radius:4px;background:rgba(255,255,255,0.06);overflow:hidden;position:relative}
+.progress-bar .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--zwift-orange),#ff8a47);transition:width 1s cubic-bezier(0.16,1,0.3,1)}
+.progress-label{display:flex;justify-content:space-between;margin-top:6px}
+.progress-label span{font-size:11px;color:var(--text-muted)}
+.progress-label .current{color:var(--zwift-orange);font-weight:600}
+
+/* Ramp indicator */
+.ramp{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius-sm);background:var(--green-bg);border:1px solid rgba(34,197,94,0.15);margin-top:10px}
+.ramp .arrow{font-size:16px}
+.ramp .ramp-text{font-size:12px;color:var(--green);font-weight:500}
+.ramp.warning{background:var(--yellow-bg);border-color:rgba(250,204,21,0.15)}
+.ramp.warning .ramp-text{color:var(--yellow)}
+
+/* Hydration card */
+.hydration-visual{display:flex;align-items:center;gap:14px;margin:10px 0}
+.water-icon{font-size:32px;line-height:1}
+.hydration-detail .amount{font-size:24px;font-weight:700;color:var(--blue)}
+.hydration-detail .sub{font-size:12px;color:var(--text-secondary);margin-top:2px}
+
+/* FTP line chart points */
+.ftp-point{fill:var(--zwift-orange);transition:r 0.3s}
+.ftp-point:hover{r:6}
+
+/* Animate in */
+.anim-in{opacity:0;transform:translateY(12px);transition:opacity 0.5s cubic-bezier(0.16,1,0.3,1),transform 0.5s cubic-bezier(0.16,1,0.3,1)}
+.anim-in.visible{opacity:1;transform:translateY(0)}
+
+/* Screen indicator */
+.screen-indicator{font-size:10px;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;font-weight:500}
+
+/* Stat highlight */
+.stat-highlight{font-size:15px;font-weight:600;color:var(--text-primary)}
+
+/* Ride stats row */
+.ride-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.ride-stat{text-align:center;padding:12px 8px;background:var(--bg-card);border:1px solid var(--border-glass);border-radius:var(--radius-sm)}
+.ride-stat .val{font-size:18px;font-weight:700;color:var(--text-primary)}
+.ride-stat .unit{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+/* Macros row */
+.macros-row{display:flex;gap:8px;margin:10px 0}
+.macro-item{flex:1;padding:12px;background:var(--bg-card);border:1px solid var(--border-glass);border-radius:var(--radius-sm);text-align:center}
+.macro-item .macro-val{font-size:16px;font-weight:700}
+.macro-item .macro-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.macro-item.carb .macro-val{color:var(--zwift-orange)}
+.macro-item.protein .macro-val{color:var(--blue)}
+.macro-item.fat .macro-val{color:var(--yellow)}
+.macro-item.cal .macro-val{color:var(--green)}
+
+/* No Garmin needed callout */
+.no-garmin{display:flex;align-items:flex-start;gap:10px;padding:14px;border-radius:var(--radius-sm);background:linear-gradient(135deg,rgba(252,103,25,0.08),rgba(252,103,25,0.02));border:1px solid rgba(252,103,25,0.15);margin-top:14px}
+.no-garmin .check{color:var(--green);font-size:16px;margin-top:1px;flex-shrink:0}
+.no-garmin .ng-text{font-size:12px;line-height:1.5;color:var(--text-secondary)}
+.no-garmin .ng-text strong{color:var(--text-primary)}
+
+/* Swipe hint */
+.swipe-hint{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(252,103,25,0.15);border:1px solid rgba(252,103,25,0.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:6px 16px;border-radius:20px;font-size:11px;color:var(--zwift-orange);font-weight:500;z-index:300;opacity:1;transition:opacity 0.5s;pointer-events:none}
+.swipe-hint.hidden{opacity:0}
+
+/* Cumulative line overlay for bar chart */
+.cumul-line{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+
+/* Screen transition animations */
+@keyframes slideInCard{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.screen.active .glass-card,.screen.active .popup-card{animation:slideInCard 0.5s cubic-bezier(0.16,1,0.3,1) both}
+.screen.active .glass-card:nth-child(1){animation-delay:0.05s}
+.screen.active .glass-card:nth-child(2){animation-delay:0.1s}
+.screen.active .glass-card:nth-child(3){animation-delay:0.15s}
+.screen.active .glass-card:nth-child(4){animation-delay:0.2s}
+.screen.active .glass-card:nth-child(5){animation-delay:0.25s}
+.screen.active .glass-card:nth-child(6){animation-delay:0.3s}
+.screen.active .popup-card{animation-delay:0.1s}
+
+@media(max-width:430px){
+  .screen-title{font-size:20px}
+  .card-value{font-size:24px}
+  .popup-card{margin:8px 14px;padding:20px}
+  .section-pad{padding:16px 16px 0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Screens Container -->
+<div class="screens-wrapper" id="screensWrapper">
+
+<!-- ============ SCREEN 1: REST DAY DASHBOARD ============ -->
+<div class="screen active" id="screen-0">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="zwift-logo">⬡ zwift</span>
+      <span class="screen-indicator">REST DAY</span>
+    </div>
+    <div class="top-bar-right">
+      <span class="peakiq-badge"><span class="dot"></span> PeakIQ</span>
+      <div class="profile-dot">IH</div>
+    </div>
+  </div>
+
+  <div class="screen-header">
+    <div class="screen-title">Recovery Hub</div>
+    <div class="screen-subtitle">Why open Zwift today? Because your body is still talking.</div>
+    <div class="powered-line">
+      <span class="peakiq-badge"><span class="dot"></span> Powered by PeakIQ Intelligence</span>
+    </div>
+  </div>
+
+  <div class="section-pad">
+    <!-- Recovery Score -->
+    <div class="glass-card highlight">
+      <div class="card-label">Recovery Status</div>
+      <div class="score-ring-wrap">
+        <div class="score-ring">
+          <svg viewBox="0 0 80 80">
+            <circle class="track" cx="40" cy="40" r="34"/>
+            <circle class="fill" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="55.5"/>
+          </svg>
+          <span class="score-text">74</span>
+          <span class="score-label">/100</span>
+        </div>
+        <div>
+          <div class="stat-highlight">Moderate Recovery</div>
+          <div class="card-desc">Your legs are still absorbing <strong>Tuesday's VO2max intervals</strong>. Muscle glycogen is rebuilding — give it time.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendation -->
+    <div class="glass-card green-tint">
+      <div class="card-label">Recommended Today</div>
+      <div style="margin-top:4px">
+        <span class="rec-tag spin">🚲 Easy Spin · 30min · Zone 1</span>
+        <span class="rec-tag rest">🛌 Complete Rest</span>
+      </div>
+      <div class="card-desc" style="margin-top:8px">Either option supports recovery. An easy spin increases blood flow without adding fatigue.</div>
+    </div>
+
+    <!-- Sleep Insight -->
+    <div class="glass-card yellow-tint">
+      <div class="card-label">Sleep Insight</div>
+      <div class="card-value yellow" style="font-size:22px">6h 12m detected</div>
+      <div class="card-desc">Below your <strong>7h average</strong>. Sleep debt slowed recovery by an estimated 8–12%. Prioritize sleep tonight to stay on track.</div>
+    </div>
+
+    <!-- Tomorrow's Window -->
+    <div class="glass-card blue-tint">
+      <div class="card-label">Tomorrow's Window</div>
+      <div class="card-desc"><strong>You'll be ready for Thursday's race prep if you rest today.</strong> Your body needs 18–24 more hours to return to baseline readiness. Tomorrow's predicted recovery score: <strong style="color:var(--green)">86/100</strong>.</div>
+    </div>
+
+    <div class="data-source">
+      <span class="icon">⚡</span>
+      <span class="text">Insights derived from <strong>Zwift power data</strong> + <strong>heart rate</strong>. No wearable watch needed.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 2: PRE-RIDE INTELLIGENCE ============ -->
+<div class="screen" id="screen-1">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="zwift-logo">⬡ zwift</span>
+      <span class="screen-indicator">PRE-RIDE</span>
+    </div>
+    <div class="top-bar-right">
+      <span class="peakiq-badge"><span class="dot"></span> PeakIQ</span>
+      <div class="profile-dot">IH</div>
+    </div>
+  </div>
+
+  <div class="screen-header">
+    <div class="screen-title">Pre-Ride Intelligence</div>
+    <div class="screen-subtitle">Before you clip in — here's what your body is telling us.</div>
+  </div>
+
+  <div style="padding:8px 0">
+    <div class="popup-card">
+      <div class="card-label" style="color:var(--zwift-orange)">⚡ Based on your last 3 sessions</div>
+
+      <div class="glass-card" style="margin-top:14px;margin-bottom:14px;background:rgba(252,103,25,0.06);border-color:rgba(252,103,25,0.15)">
+        <div class="card-label">FTP Trending</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <span class="card-value orange" style="font-size:36px">248<span style="font-size:16px;font-weight:500">W</span></span>
+          <span style="font-size:13px;color:var(--green);font-weight:600">↑ from 241W two weeks ago</span>
+        </div>
+      </div>
+
+      <div class="glass-card green-tint" style="margin-bottom:14px">
+        <div class="card-label">Today's Recommended Intensity</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <span class="rec-tag tempo">Tempo · 75–85% FTP</span>
+        </div>
+        <div class="card-desc" style="margin-top:8px">
+          <strong>Target zone: 186–211W</strong><br>
+          Your aerobic base is responding well. A tempo effort builds threshold without excessive stress.
+        </div>
+      </div>
+
+      <div class="glass-card red-tint" style="margin-bottom:0">
+        <div class="card-label">⚠️ Avoid Today</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <span class="rec-tag warn">VO2max Efforts</span>
+        </div>
+        <div class="card-desc" style="margin-top:8px">Your body is still recovering from Tuesday's VO2max intervals. High-intensity work today risks <strong>overreaching</strong> and will compromise Saturday's readiness.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-pad">
+    <div class="data-source">
+      <span class="icon">⚡</span>
+      <span class="text">FTP estimated from <strong>Zwift ride power data</strong>. HR response validates recovery state. <strong>No Garmin required.</strong></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 3: POST-RIDE DEBRIEF ============ -->
+<div class="screen" id="screen-2">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="zwift-logo">⬡ zwift</span>
+      <span class="screen-indicator">POST-RIDE</span>
+    </div>
+    <div class="top-bar-right">
+      <span class="peakiq-badge"><span class="dot"></span> PeakIQ</span>
+      <div class="profile-dot">IH</div>
+    </div>
+  </div>
+
+  <div class="screen-header">
+    <div class="screen-title">Ride Complete ✓</div>
+    <div class="screen-subtitle">Here's what your effort actually achieved.</div>
+  </div>
+
+  <div class="section-pad">
+    <!-- Ride summary stats -->
+    <div class="ride-stats">
+      <div class="ride-stat"><div class="val">42</div><div class="unit">km</div></div>
+      <div class="ride-stat"><div class="val">1:08:32</div><div class="unit">time</div></div>
+      <div class="ride-stat"><div class="val">198</div><div class="unit">avg W</div></div>
+    </div>
+    <div class="ride-stats" style="margin-top:0">
+      <div class="ride-stat"><div class="val" style="color:var(--zwift-orange)">215</div><div class="unit">NP watts</div></div>
+      <div class="ride-stat"><div class="val" style="color:var(--red)">152</div><div class="unit">avg HR</div></div>
+      <div class="ride-stat"><div class="val" style="color:var(--yellow)">0.87</div><div class="unit">IF</div></div>
+    </div>
+
+    <!-- Efficiency Factor -->
+    <div class="glass-card green-tint">
+      <div class="card-label">Efficiency Factor (NP/HR)</div>
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span class="card-value green" style="font-size:28px">1.41</span>
+        <span style="font-size:13px;color:var(--green);font-weight:600">↑ 2.8% vs. similar effort 2 weeks ago</span>
+      </div>
+      <div class="card-desc">You're producing more power per heartbeat — a direct sign of improving cardiovascular fitness.</div>
+    </div>
+
+    <!-- Decoupling -->
+    <div class="glass-card blue-tint">
+      <div class="card-label">Aerobic Decoupling</div>
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span class="card-value blue" style="font-size:28px">4.2%</span>
+        <span style="font-size:13px;color:var(--green);font-weight:600">Excellent</span>
+      </div>
+      <div class="card-desc">Under 5% = strong aerobic fitness indicator. Your heart rate stayed coupled with power output throughout the ride.</div>
+    </div>
+
+    <!-- TSS -->
+    <div class="glass-card highlight">
+      <div class="card-label">Training Stress Score</div>
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span class="card-value orange" style="font-size:28px">67</span>
+        <span style="font-size:13px;color:var(--text-secondary);font-weight:500">Moderate load</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="fill" style="width:81%"></div></div>
+        <div class="progress-label">
+          <span>Weekly TSS</span>
+          <span class="current">340 / 420 target</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next ride -->
+    <div class="glass-card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.15)">
+      <div class="card-label">Next Ride Recommendation</div>
+      <div class="card-desc"><strong>Rest tomorrow (Thursday).</strong> Saturday: Group ride or race — you'll be at <strong style="color:var(--green)">peak readiness</strong>. Your body will fully absorb today's stimulus by then.</div>
+    </div>
+
+    <div class="data-source">
+      <span class="icon">⚡</span>
+      <span class="text">All metrics from <strong>Zwift power + chest strap HR</strong>. Works with Wahoo KICKR, Tacx, or any ANT+/BLE trainer.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 4: WEEKLY TRAINING LOAD ============ -->
+<div class="screen" id="screen-3">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="zwift-logo">⬡ zwift</span>
+      <span class="screen-indicator">WEEKLY</span>
+    </div>
+    <div class="top-bar-right">
+      <span class="peakiq-badge"><span class="dot"></span> PeakIQ</span>
+      <div class="profile-dot">IH</div>
+    </div>
+  </div>
+
+  <div class="screen-header">
+    <div class="screen-title">Weekly Training Load</div>
+    <div class="screen-subtitle">Your week at a glance — stress, recovery, and trajectory.</div>
+  </div>
+
+  <div class="section-pad">
+    <div class="glass-card highlight">
+      <div class="card-label">TSS by Day · This Week</div>
+      <div style="position:relative">
+        <div class="bar-chart" id="weeklyChart">
+          <!-- JS will render bars -->
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <span style="font-size:10px;color:var(--text-muted)">● <span style="color:#3B82F6">Endurance</span></span>
+        <span style="font-size:10px;color:var(--text-muted)">● <span style="color:#FACC15">Tempo</span></span>
+        <span style="font-size:10px;color:var(--text-muted)">● <span style="color:#EF4444">VO2max</span></span>
+        <span style="font-size:10px;color:var(--text-muted)">● <span style="color:rgba(255,255,255,0.15)">Rest</span></span>
+      </div>
+    </div>
+
+    <!-- Cumulative progress -->
+    <div class="glass-card">
+      <div class="card-label">Weekly TSS Progress</div>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="fill" style="width:81%"></div></div>
+        <div class="progress-label">
+          <span>Target: 420 TSS</span>
+          <span class="current">340 TSS (81%)</span>
+        </div>
+      </div>
+      <div class="card-desc" style="margin-top:10px">You're at <strong>81% of your weekly target</strong> with 2 days remaining. Thursday's rest + Saturday's group ride will land you at <strong>~400 TSS</strong> — ideal for your current build phase.</div>
+    </div>
+
+    <!-- Ramp rate -->
+    <div class="glass-card green-tint">
+      <div class="card-label">Ramp Rate</div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span class="card-value green" style="font-size:22px">+5%</span>
+        <span style="font-size:13px;color:var(--text-secondary)">week-over-week</span>
+      </div>
+      <div class="ramp">
+        <span class="arrow">✓</span>
+        <span class="ramp-text">Sustainable progression. Warning zone starts at +10%.</span>
+      </div>
+      <div class="card-desc" style="margin-top:8px">Your body is adapting at a rate that builds fitness without injury risk. Keep this trajectory through the build phase.</div>
+    </div>
+
+    <div class="data-source">
+      <span class="icon">⚡</span>
+      <span class="text">TSS calculated from <strong>Zwift power data</strong> and your estimated FTP. Heart rate validates intensity zones.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 5: NUTRITION RECOVERY ============ -->
+<div class="screen" id="screen-4">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="zwift-logo">⬡ zwift</span>
+      <span class="screen-indicator">NUTRITION</span>
+    </div>
+    <div class="top-bar-right">
+      <span class="peakiq-badge"><span class="dot"></span> PeakIQ</span>
+      <div class="profile-dot">IH</div>
+    </div>
+  </div>
+
+  <div class="screen-header">
+    <div class="screen-title">Post-Ride Fuel</div>
+    <div class="screen-subtitle">Your recovery window is open. Here's what your body needs.</div>
+  </div>
+
+  <div class="section-pad">
+    <!-- Calorie burn -->
+    <div class="glass-card highlight">
+      <div class="card-label">Energy Expenditure</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="card-value orange" style="font-size:34px">1,140</span>
+        <span style="font-size:16px;color:var(--text-secondary);font-weight:500">kcal burned</span>
+      </div>
+      <div class="card-desc">Estimated from 68 minutes at 198W average power output.</div>
+    </div>
+
+    <!-- 30-min window -->
+    <div class="glass-card" style="background:rgba(252,103,25,0.06);border-color:rgba(252,103,25,0.2)">
+      <div class="card-label">⏱ 30-Minute Recovery Window</div>
+      <div class="card-desc" style="font-size:14px"><strong>Consume 80–100g carbohydrates</strong> within the next 30 minutes to maximize glycogen resynthesis for Saturday's effort.</div>
+      <div style="margin-top:10px;padding:10px 14px;border-radius:var(--radius-xs);background:rgba(255,255,255,0.03);border:1px solid var(--border-glass)">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Quick options:</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">• 2 bananas + recovery shake (≈85g carbs)<br>• Rice bowl with honey + juice (≈95g carbs)<br>• Commercial recovery drink + toast (≈80g carbs)</div>
+      </div>
+    </div>
+
+    <!-- Macros -->
+    <div class="glass-card">
+      <div class="card-label">Today's Total Target</div>
+      <div class="macros-row">
+        <div class="macro-item cal"><div class="macro-val">2,900</div><div class="macro-label">kcal</div></div>
+        <div class="macro-item carb"><div class="macro-val">380g</div><div class="macro-label">carbs</div></div>
+        <div class="macro-item protein"><div class="macro-val">145g</div><div class="macro-label">protein</div></div>
+        <div class="macro-item fat"><div class="macro-val">90g</div><div class="macro-label">fat</div></div>
+      </div>
+      <div class="card-desc">Fueling at ~2,900 kcal supports full glycogen replenishment and muscle repair before Saturday.</div>
+    </div>
+
+    <!-- Hydration -->
+    <div class="glass-card blue-tint">
+      <div class="card-label">💧 Hydration</div>
+      <div class="hydration-visual">
+        <div class="water-icon">💧</div>
+        <div class="hydration-detail">
+          <div class="amount">1.2L</div>
+          <div class="sub">Estimated sweat loss</div>
+        </div>
+      </div>
+      <div class="card-desc">Based on <strong>68 minutes at 152bpm average</strong> in indoor conditions (elevated heat, limited airflow). Rehydrate with <strong>electrolytes</strong> — sodium and potassium support muscle recovery.</div>
+    </div>
+
+    <div class="data-source">
+      <span class="icon">⚡</span>
+      <span class="text">Calorie estimate from <strong>power output × time</strong>. Sweat loss modeled from <strong>HR × duration</strong> in indoor environment. No wearable watch needed.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 6: FTP PROGRESSION ============ -->
+<div class="screen" id="screen-5">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="zwift-logo">⬡ zwift</span>
+      <span class="screen-indicator">PROGRESSION</span>
+    </div>
+    <div class="top-bar-right">
+      <span class="peakiq-badge"><span class="dot"></span> PeakIQ</span>
+      <div class="profile-dot">IH</div>
+    </div>
+  </div>
+
+  <div class="screen-header">
+    <div class="screen-title">FTP Progression</div>
+    <div class="screen-subtitle">12-week trend and 8-week projection.</div>
+  </div>
+
+  <div class="section-pad">
+    <!-- FTP chart -->
+    <div class="glass-card highlight">
+      <div class="card-label">FTP Over 12 Weeks</div>
+      <div class="line-chart-wrap" id="ftpChartWrap">
+        <svg viewBox="0 0 340 150" preserveAspectRatio="none" id="ftpChart">
+          <!-- Grid lines -->
+          <line x1="0" y1="0" x2="340" y2="0" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="0" y1="37.5" x2="340" y2="37.5" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="0" y1="75" x2="340" y2="75" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="0" y1="112.5" x2="340" y2="112.5" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="0" y1="150" x2="340" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <!-- Y axis labels -->
+          <text x="4" y="10" fill="rgba(255,255,255,0.3)" font-size="8" font-family="var(--font)">265W</text>
+          <text x="4" y="146" fill="rgba(255,255,255,0.3)" font-size="8" font-family="var(--font)">225W</text>
+          <!-- Gradient fill under line -->
+          <defs>
+            <linearGradient id="ftpGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(252,103,25,0.3)"/>
+              <stop offset="100%" stop-color="rgba(252,103,25,0)"/>
+            </linearGradient>
+            <linearGradient id="predGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(252,103,25,0.12)"/>
+              <stop offset="100%" stop-color="rgba(252,103,25,0)"/>
+            </linearGradient>
+          </defs>
+          <!-- Area fill -->
+          <path d="M0,135 L28,131 L56,127 L84,120 L112,116 L140,109 L168,105 L196,98 L224,90 L252,82 L280,71 L310,56.25 L310,150 L0,150 Z" fill="url(#ftpGrad)"/>
+          <!-- Prediction area -->
+          <path d="M310,56.25 L330,45 L340,33.75 L340,150 L310,150 Z" fill="url(#predGrad)" opacity="0.7"/>
+          <!-- Actual FTP line -->
+          <polyline points="0,135 28,131 56,127 84,120 112,116 140,109 168,105 196,98 224,90 252,82 280,71 310,56.25" fill="none" stroke="var(--zwift-orange)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Prediction dashed line -->
+          <polyline points="310,56.25 330,45 340,33.75" fill="none" stroke="var(--zwift-orange)" stroke-width="2" stroke-dasharray="5,4" opacity="0.6"/>
+          <!-- Data points -->
+          <circle cx="0" cy="135" r="3" class="ftp-point"/>
+          <circle cx="56" cy="127" r="3" class="ftp-point"/>
+          <circle cx="112" cy="116" r="3" class="ftp-point"/>
+          <circle cx="168" cy="105" r="3" class="ftp-point"/>
+          <circle cx="224" cy="90" r="3" class="ftp-point"/>
+          <circle cx="280" cy="71" r="3" class="ftp-point"/>
+          <circle cx="310" cy="56.25" r="4" fill="var(--zwift-orange)" stroke="#fff" stroke-width="1.5"/>
+          <!-- Prediction marker -->
+          <circle cx="340" cy="33.75" r="4" fill="none" stroke="var(--zwift-orange)" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <!-- Labels -->
+          <text x="2" y="132" fill="rgba(255,255,255,0.5)" font-size="8" font-family="var(--font)">230W</text>
+          <text x="295" y="52" fill="var(--zwift-orange)" font-size="9" font-weight="700" font-family="var(--font)">248W</text>
+          <text x="320" y="30" fill="rgba(252,103,25,0.6)" font-size="8" font-weight="600" font-family="var(--font)">262W</text>
+          <!-- Week labels -->
+          <text x="0" y="148" fill="rgba(255,255,255,0.25)" font-size="7" font-family="var(--font)">Wk 1</text>
+          <text x="140" y="148" fill="rgba(255,255,255,0.25)" font-size="7" font-family="var(--font)">Wk 6</text>
+          <text x="275" y="148" fill="rgba(255,255,255,0.25)" font-size="7" font-family="var(--font)">Wk 12</text>
+          <text x="325" y="148" fill="rgba(255,255,255,0.25)" font-size="7" font-family="var(--font)">+8</text>
+        </svg>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:4px">
+        <span style="font-size:10px;color:var(--text-muted)"><span style="display:inline-block;width:16px;height:2px;background:var(--zwift-orange);border-radius:1px;vertical-align:middle;margin-right:4px"></span> Actual</span>
+        <span style="font-size:10px;color:var(--text-muted)"><span style="display:inline-block;width:16px;height:2px;background:var(--zwift-orange);border-radius:1px;vertical-align:middle;margin-right:4px;opacity:0.5;border-top:1px dashed var(--zwift-orange)"></span> Projected</span>
+      </div>
+    </div>
+
+    <!-- Prediction -->
+    <div class="glass-card" style="background:rgba(252,103,25,0.04);border-color:rgba(252,103,25,0.15)">
+      <div class="card-label">8-Week Prediction</div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span class="card-value orange" style="font-size:32px">262<span style="font-size:16px;font-weight:500">W</span></span>
+        <span style="font-size:13px;color:var(--green);font-weight:600">+3.5%/month</span>
+      </div>
+      <div class="card-desc">At your current rate of improvement, projected FTP in 8 weeks: <strong style="color:var(--zwift-orange)">262W</strong>.</div>
+    </div>
+
+    <!-- Acceleration tip -->
+    <div class="glass-card green-tint">
+      <div class="card-label">🚀 Acceleration Tip</div>
+      <div class="card-desc"><strong>To accelerate: add one sweet-spot session per week</strong> (88–93% FTP = 218–231W for 2×20min). This targets the specific adaptation that drives FTP growth fastest.</div>
+    </div>
+
+    <!-- No Garmin callout -->
+    <div class="no-garmin">
+      <span class="check">✓</span>
+      <span class="ng-text"><strong>This analysis is derived entirely from your Zwift ride power data and heart rate.</strong> No wearable watch required. Works with any smart trainer (Wahoo KICKR, Tacx Neo, Elite, Saris) and any chest strap HR monitor.</span>
+    </div>
+
+    <div class="data-source">
+      <span class="icon">⚡</span>
+      <span class="text">FTP estimated from critical power model applied to <strong>Zwift power data</strong>. Projection uses rate-of-change from 12-week rolling analysis.</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- end screens-wrapper -->
+
+<!-- Navigation -->
+<div class="nav-label" id="navLabel">Rest Day Dashboard</div>
+<div class="bottom-nav" id="bottomNav">
+  <button class="nav-dot active" data-screen="0" aria-label="Screen 1"></button>
+  <button class="nav-dot" data-screen="1" aria-label="Screen 2"></button>
+  <button class="nav-dot" data-screen="2" aria-label="Screen 3"></button>
+  <button class="nav-dot" data-screen="3" aria-label="Screen 4"></button>
+  <button class="nav-dot" data-screen="4" aria-label="Screen 5"></button>
+  <button class="nav-dot" data-screen="5" aria-label="Screen 6"></button>
+</div>
+
+<!-- Swipe hint -->
+<div class="swipe-hint" id="swipeHint">← Swipe or tap dots to navigate →</div>
+
+</div><!-- end app -->
+
+<script>
+(function(){
+  const wrapper = document.getElementById('screensWrapper');
+  const dots = document.querySelectorAll('.nav-dot');
+  const screens = document.querySelectorAll('.screen');
+  const navLabel = document.getElementById('navLabel');
+  const swipeHint = document.getElementById('swipeHint');
+  const labels = ['Rest Day Dashboard','Pre-Ride Intelligence','Post-Ride Debrief','Weekly Training Load','Nutrition Recovery','FTP Progression'];
+  let current = 0;
+  let startX = 0;
+  let isDragging = false;
+
+  function goTo(idx) {
+    if (idx < 0 || idx > 5) return;
+    current = idx;
+    wrapper.style.transform = `translateX(-${current * (100/6)}%)`;
+    dots.forEach((d,i) => d.classList.toggle('active', i === current));
+    screens.forEach((s,i) => s.classList.toggle('active', i === current));
+    navLabel.textContent = labels[current];
+    // Reset scroll on screen change
+    screens[current].scrollTop = 0;
+    if (swipeHint && !swipeHint.classList.contains('hidden')) {
+      setTimeout(() => swipeHint.classList.add('hidden'), 300);
+    }
+  }
+
+  dots.forEach(d => d.addEventListener('click', () => goTo(parseInt(d.dataset.screen))));
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); goTo(current - 1); }
+  });
+
+  // Touch swipe
+  wrapper.addEventListener('touchstart', e => { startX = e.touches[0].clientX; isDragging = true; }, {passive:true});
+  wrapper.addEventListener('touchend', e => {
+    if (!isDragging) return;
+    isDragging = false;
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? goTo(current + 1) : goTo(current - 1);
+    }
+  }, {passive:true});
+
+  // Render weekly chart bars
+  const chartData = [
+    {day:'Mon',tss:85,color:'#EF4444',zone:'VO2max'},
+    {day:'Tue',tss:72,color:'#EF4444',zone:'VO2max'},
+    {day:'Wed',tss:45,color:'#3B82F6',zone:'Endurance'},
+    {day:'Thu',tss:0,color:'rgba(255,255,255,0.08)',zone:'Rest'},
+    {day:'Fri',tss:67,color:'#FACC15',zone:'Tempo'},
+    {day:'Sat',tss:71,color:'rgba(255,255,255,0.12)',zone:'Planned'},
+    {day:'Sun',tss:0,color:'rgba(255,255,255,0.08)',zone:'Rest'}
+  ];
+  const maxTSS = 90;
+  const chart = document.getElementById('weeklyChart');
+  chartData.forEach(d => {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    const h = d.tss > 0 ? Math.max((d.tss / maxTSS) * 120, 8) : 4;
+    col.innerHTML = `
+      <div class="tss-val">${d.tss > 0 ? d.tss : '—'}</div>
+      <div class="bar" style="height:${h}px;background:${d.zone==='Planned'?'repeating-linear-gradient(45deg,rgba(255,255,255,0.06),rgba(255,255,255,0.06) 2px,rgba(255,255,255,0.12) 2px,rgba(255,255,255,0.12) 4px)':d.color};${d.zone==='Planned'?'border:1px dashed rgba(255,255,255,0.15)':''}"></div>
+      <div class="day-label">${d.day}</div>
+    `;
+    chart.appendChild(col);
+  });
+
+  // Auto-hide swipe hint
+  setTimeout(() => { if(swipeHint) swipeHint.classList.add('hidden'); }, 4000);
+
+  // Init first screen active
+  goTo(0);
+})();
+</script>
+</body>
+</html>
