@@ -55,20 +55,14 @@
             margin-bottom: 24px;
             padding-bottom: 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            gap: 16px; /* מרווח בין הלוגו לטקסט */
         }
 
-        /* --- CSS חדש עבור הלוגו --- */
+        /* --- עיצוב הלוגו החדש --- */
         .coros-header-logo {
-            height: 24px; /* גובה קטן שמתאים לכותרות */
+            height: 36px; /* גובה מכובד וברור */
             width: auto;
-            aspect-ratio: 1 / 1;
+            object-fit: contain;
         }
-        .header-logo-container {
-            display: flex;
-            align-items: center;
-        }
-        /* -------------------------- */
 
         .screen-title {
             font-size: 28px;
@@ -76,9 +70,11 @@
             color: var(--coros-text-primary);
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin: 0; /* איפוס המרג'ין המקורי */
+            gap: 16px;
+            margin: 0;
+            flex-wrap: wrap; /* מאפשר לטקסט לגלוש יפה במסכים קטנים */
         }
+        /* -------------------------- */
 
         .peakiq-badge {
             display: inline-flex;
@@ -114,7 +110,6 @@
             margin-bottom: 24px;
         }
 
-        /* NEW: layout for Screen 1 card */
         .recovery-layout {
             display: grid;
             grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
@@ -676,8 +671,13 @@
                 padding: 16px;
             }
 
+            .coros-header-logo {
+                height: 24px; /* הקטנה למובייל */
+            }
+
             .screen-title {
                 font-size: 22px;
+                gap: 10px;
             }
 
             .recovery-layout {
@@ -692,7 +692,17 @@
             }
 
             .gauge-value {
-                font-size: 48px;
+                font-size: 42px; /* התיקון שהוכנס ל-RECOVERY SCORE */
+            }
+
+            .gauge-max {
+                font-size: 16px;
+            }
+
+            .gauge-label {
+                font-size: 10px;
+                letter-spacing: 0.5px;
+                margin-top: 4px;
             }
 
             .watch-mockup {
@@ -703,6 +713,24 @@
             .nav-arrow {
                 display: none;
             }
+
+            .watch-screen {
+                padding: 16px;
+            }
+
+            .watch-label {
+                margin-bottom: 8px;
+            }
+
+            .watch-distance {
+                font-size: 28px;
+                margin-bottom: 4px;
+            }
+
+            .watch-subtitle {
+                margin-top: 6px;
+                font-size: 10px;
+            }
         }
     </style>
 </head>
@@ -710,11 +738,9 @@
 
     <div class="screen active" id="screen1">
         <div class="screen-header">
-            <div class="header-logo-container">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-            </div>
             <div class="screen-title">
-                Training Intelligence
+                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
+                <span>Training Intelligence</span>
                 <span class="peakiq-badge">Powered by PeakIQ</span>
             </div>
         </div>
@@ -763,11 +789,9 @@
 
     <div class="screen" id="screen2">
         <div class="screen-header">
-            <div class="header-logo-container">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-            </div>
             <div class="screen-title">
-                Today's Workout
+                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
+                <span>Today's Workout</span>
                 <span class="peakiq-badge">Powered by PeakIQ</span>
             </div>
         </div>
@@ -803,11 +827,9 @@
 
     <div class="screen" id="screen3">
         <div class="screen-header">
-            <div class="header-logo-container">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-            </div>
             <div class="screen-title">
-                Alert
+                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
+                <span>Alert</span>
                 <span class="peakiq-badge">Powered by PeakIQ</span>
             </div>
         </div>
@@ -846,11 +868,9 @@
 
     <div class="screen" id="screen4">
         <div class="screen-header">
-            <div class="header-logo-container">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-            </div>
             <div class="screen-title" style="font-size: 22px;">
-                Tel Aviv Marathon Taper
+                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
+                <span>Tel Aviv Marathon Taper</span>
                 <span class="peakiq-badge">Powered by PeakIQ</span>
             </div>
         </div>
@@ -901,11 +921,9 @@
 
     <div class="screen" id="screen5">
         <div class="screen-header">
-            <div class="header-logo-container">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-            </div>
             <div class="screen-title">
-                Run Complete
+                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
+                <span>Run Complete</span>
                 <span class="peakiq-badge">Powered by PeakIQ</span>
             </div>
         </div>
@@ -957,11 +975,9 @@
 
     <div class="screen" id="screen6">
         <div class="screen-header">
-            <div class="header-logo-container">
-                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
-            </div>
             <div class="screen-title">
-                Recovery Window
+                <img src="assets/coros-logo.png" alt="COROS Logo" class="coros-header-logo">
+                <span>Recovery Window</span>
                 <span class="peakiq-badge">Powered by PeakIQ</span>
             </div>
         </div>
