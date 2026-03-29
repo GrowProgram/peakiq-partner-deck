@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PeakIQ - Clinical Decision Support System (CDSS)</title>
-    
+    <title>PeakIQ - Clinical Decision Support System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
         :root {
             --bg-body: #f8fafc;
@@ -18,14 +16,11 @@
             --primary: #0284c7; /* Clinical Blue */
             --primary-light: #e0f2fe;
             --accent: #0f766e; /* Medical Teal */
+            --danger: #b91c1c;
             --border: #e2e8f0;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Inter', system-ui, sans-serif;
@@ -36,226 +31,72 @@
             overflow-x: hidden;
         }
 
-        /* Deck Container */
         .deck-container {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 100vw; height: 100vh;
+            position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        /* Slide Style */
         .slide {
-            position: absolute;
-            width: 100%;
-            height: 100%;
+            position: absolute; width: 100%; height: 100%;
             background: var(--bg-slide);
-            display: flex;
-            flex-direction: column;
-            opacity: 0;
-            z-index: 0;
+            display: flex; flex-direction: column;
+            opacity: 0; z-index: 0;
             transition: opacity 0.4s ease-in-out;
-            overflow-y: auto; /* Allow scrolling on mobile */
-            padding: 80px 20px 100px 20px; /* Padding for mobile */
+            overflow-y: auto;
+            padding: 60px 20px 100px 20px;
         }
 
-        .slide.active {
-            opacity: 1;
-            z-index: 10;
-        }
+        .slide.active { opacity: 1; z-index: 10; }
 
-        /* Content Wrapper - limits width on desktop */
-        .content {
-            width: 100%;
-            max-width: 900px;
-            margin: auto;
-        }
+        .content { width: 100%; max-width: 900px; margin: auto; }
 
-        /* Typography */
         .tag {
-            display: inline-block;
-            background: var(--primary-light);
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            margin-bottom: 16px;
+            display: inline-block; background: var(--primary-light); color: var(--primary);
+            padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;
+            letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 16px;
         }
 
-        h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 16px;
-            line-height: 1.3;
-        }
+        h1 { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; line-height: 1.2; }
+        h2 { font-size: 24px; font-weight: 600; color: var(--text-main); margin-bottom: 16px; }
+        p.lead { font-size: 16px; color: var(--text-muted); margin-bottom: 32px; }
 
-        h2 {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 16px;
-        }
-
-        p.lead {
-            font-size: 16px;
-            color: var(--text-muted);
-            margin-bottom: 32px;
-        }
-
-        /* Grid System */
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr; /* Mobile default */
-            gap: 20px;
-            margin-bottom: 32px;
-        }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 32px; }
 
         @media (min-width: 768px) {
             .grid-2 { grid-template-columns: repeat(2, 1fr); }
             .grid-3 { grid-template-columns: repeat(3, 1fr); }
-            
-            .slide {
-                padding: 0;
-                justify-content: center;
-                align-items: center;
-                overflow-y: hidden;
-            }
-            
-            h1 { font-size: 36px; }
-            h2 { font-size: 28px; }
-            p.lead { font-size: 18px; }
+            .slide { padding: 0; justify-content: center; align-items: center; overflow-y: hidden; }
+            h1 { font-size: 36px; } h2 { font-size: 28px; } p.lead { font-size: 18px; }
         }
 
-        /* Cards */
         .card {
-            background: var(--bg-slide);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            background: var(--bg-slide); border: 1px solid var(--border);
+            border-radius: 8px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
 
-        .card-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
+        .card-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; }
+        .card-value { font-size: 24px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+        .card-text { font-size: 14px; color: var(--text-muted); }
 
-        .card-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 8px;
-        }
+        ul.clinical-list { list-style: none; padding-left: 0; }
+        ul.clinical-list li { position: relative; padding-left: 20px; margin-bottom: 12px; font-size: 15px; color: var(--text-main); }
+        ul.clinical-list li::before { content: "■"; position: absolute; left: 0; color: var(--primary); font-size: 10px; top: 4px; }
 
-        .card-text {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
+        .table-container { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 24px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        th { background-color: #f1f5f9; color: var(--text-muted); font-weight: 600; }
 
-        /* Lists */
-        ul.clinical-list {
-            list-style: none;
-        }
-
-        ul.clinical-list li {
-            position: relative;
-            padding-right: 20px; /* RTL fix */
-            margin-bottom: 12px;
-            font-size: 15px;
-            color: var(--text-main);
-        }
-
-        ul.clinical-list li::before {
-            content: "■";
-            position: absolute;
-            right: 0;
-            color: var(--primary);
-            font-size: 10px;
-            top: 4px;
-        }
-
-        /* Data Tables */
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 24px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: right;
-        }
-
-        th, td {
-            padding: 16px;
-            border-bottom: 1px solid var(--border);
-            font-size: 14px;
-        }
-
-        th {
-            background-color: #f1f5f9;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        /* Context Note */
-        .context-note {
-            font-size: 12px;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border);
-            padding-top: 16px;
-            margin-top: 16px;
-        }
-
-        /* Navigation */
         .nav-controls {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
-            z-index: 100;
-            direction: ltr; /* Keep arrows logical */
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; align-items: center; gap: 20px;
+            background: white; padding: 12px 24px; border-radius: 50px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid var(--border); z-index: 100;
         }
-
-        .nav-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 4px 8px;
-        }
-
+        .nav-btn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 4px 8px; }
         .nav-btn:hover { color: var(--primary); }
-
-        .slide-counter {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-main);
-            min-width: 45px;
-            text-align: center;
-        }
+        .slide-counter { font-size: 14px; font-weight: 600; color: var(--text-main); min-width: 45px; text-align: center; }
     </style>
 </head>
 <body>
@@ -265,19 +106,19 @@
     <div class="slide active" data-slide="1">
         <div class="content">
             <div class="tag">Executive Summary</div>
-            <h1>PeakIQ: מערכת לניטור ויירוט מוקדם של הידרדרות קלינית</h1>
+            <h1>PeakIQ: Continuous Prodromal Monitoring & Interception</h1>
             <p class="lead">
-                מעבר מרפואה תגובתית במרפאות הקהילה לרפואה פרואקטיבית מונעת-עומסים.<br>
-                מערכת תומכת החלטה (CDSS) מבוססת ניטור לבישים ואלגוריתמיקה מוכחת.
+                Transitioning community clinics from reactive treatment to proactive Clinical Capacity creation.<br>
+                A Clinical Decision Support System (CDSS) powered by validated biomarker algorithms.
             </p>
             <div class="grid grid-2">
                 <div class="card">
-                    <div class="card-title">מיקוד תפעולי</div>
-                    <div class="card-text">פינוי תורים ויצירת קיבולת קלינית (Clinical Capacity) בקהילה על ידי מניעת החמרות אורתופדיות ואשפוזי שחיקה.</div>
+                    <div class="card-title">Operational Focus</div>
+                    <div class="card-text">Alleviating specialist queues and creating primary care capacity by preventing avoidable MSK exacerbations and burnout hospitalizations.</div>
                 </div>
                 <div class="card">
-                    <div class="card-title">אינטגרציה קלינית</div>
-                    <div class="card-text">מיועד להשתלב בצורה שקופה במערכות התיק הרפואי והמניעה הקיימות בקופה ללא יצירת "עייפות התראות" לרופא.</div>
+                    <div class="card-title">Enterprise Integration</div>
+                    <div class="card-text">Designed to integrate transparently into existing HMO preventive platforms (C-Pi) and EMR workflows without generating physician alert fatigue.</div>
                 </div>
             </div>
         </div>
@@ -286,23 +127,23 @@
     <div class="slide" data-slide="2">
         <div class="content">
             <div class="tag">The Architectural Gap</div>
-            <h2>בעיית העומס: חוסר במנגנון יירוט מקדים</h2>
+            <h2>The Burden of Reactive Architecture</h2>
             <p class="lead">
-                קופות החולים סובלות ממחסור חמור בתורים לרפואה יועצת ומעומס על רפואת המשפחה. חלק ניכר מביקורים אלו מקורו באירועים הניתנים למניעה.
+                Current risk models read the past. A patient enters a "high-risk" cohort only after a costly clinical event has occurred.
             </p>
 
             <div class="grid grid-3">
                 <div class="card">
-                    <div class="card-title">התערבות מאוחרת</div>
-                    <div class="card-text">מטופלים מזוהים כ"סיכון" רק לאחר ביקור במיון או אבחון. המודל הנוכחי מגיב לאירוע במקום למנוע אותו.</div>
+                    <div class="card-title">Unread Signals</div>
+                    <div class="card-text">Orthopedic injuries and systemic burnout are preceded by 14 days of measurable physiological deterioration that currently goes unmonitored.</div>
                 </div>
                 <div class="card">
-                    <div class="card-title">כישלון אפליקציות צעדים</div>
-                    <div class="card-text">כלים המעודדים "ספירת צעדים" ללא הקשר פיזיולוגי עשויים לעודד מאמץ יתר בזמן תשישות, ולהוביל לפציעות (Tears) מיותרות.</div>
+                    <div class="card-title">The Wellness Trap</div>
+                    <div class="card-text">Generic "step-counting" apps push exhausted patients to overtrain, actively incentivizing biomechanical failure (micro-tears).</div>
                 </div>
                 <div class="card">
-                    <div class="card-title">עומס קליני נמנע</div>
-                    <div class="card-text">אי-מניעת שחיקה ופציעות ביו-מכניות מובילה למאות תורים מיותרים לרפואת משפחה ואורתופדיה בחודש.</div>
+                    <div class="card-title">Lost Capacity</div>
+                    <div class="card-text">Failing to intercept these trajectories results in hundreds of preventable primary care and orthopedic visits per month.</div>
                 </div>
             </div>
         </div>
@@ -310,17 +151,17 @@
 
     <div class="slide" data-slide="3">
         <div class="content">
-            <div class="tag">Clinical Decision Support System</div>
-            <h2>PeakIQ: ניטור פיזיולוגי אוטונומי</h2>
+            <div class="tag">Clinical Decision Support</div>
+            <h2>Autonomous Physiological Telemetry</h2>
             <p class="lead">
-                המערכת קוראת נתונים באופן רציף משעונים חכמים קיימים (ללא חומרה חדשה) ומזהה דחק במערכת העצבים 24-48 שעות לפני הופעת סימפטומים.
+                PeakIQ passively ingests data from patients' existing wearable devices, identifying autonomic stress 24-48 hours before physical symptoms manifest.
             </p>
 
             <div class="card">
                 <ul class="clinical-list">
-                    <li><strong>ניתוח HRV (Heart Rate Variability):</strong> זיהוי ירידה בתפקוד הפאראסימפתטי המעיד על חסינות ירודה ושחיקה קלינית.</li>
-                    <li><strong>יחס עומס ACWR (Acute:Chronic Workload Ratio):</strong> אלגוריתם המזהה חריגה ביחס העומס. הוכח מחקרית ביכולת ניבוי של פציעות רקמה בדיוק של 79%.</li>
-                    <li><strong>התערבות פרואקטיבית:</strong> שיגור פרוטוקול מנוחה אוטומטי למטופל בטרם הפציעה/השחיקה, החוסך את הגעתו למרפאה.</li>
+                    <li><strong>Heart Rate Variability (HRV):</strong> Detects parasympathetic suppression, acting as an early indicator for immune compromise and burnout.</li>
+                    <li><strong>Acute:Chronic Workload Ratio (ACWR):</strong> A biomechanical risk algorithm that predicts tissue structure failure with 79% accuracy when ratios exceed the 1.5 danger threshold.</li>
+                    <li><strong>Proactive Nudge:</strong> Dispatches an automated, personalized rest protocol directly to the patient, intercepting the event before clinical intervention is required.</li>
                 </ul>
             </div>
         </div>
@@ -329,24 +170,20 @@
     <div class="slide" data-slide="4">
         <div class="content">
             <div class="tag">IT Architecture</div>
-            <h2>אינטגרציה חלקה ללא עומס על הרופא</h2>
+            <h2>Frictionless EMR Integration</h2>
             <p class="lead">
-                המערכת פועלת כרכיב איסוף נתונים (Data Ingestion) התואם לתקני משרד הבריאות, ולא כדאשבורד עצמאי.
+                Operating strictly under Ministry of Health guidelines for AI, maintaining human-in-the-loop oversight with zero workflow disruption.
             </p>
 
             <div class="grid grid-2">
                 <div class="card">
-                    <div class="card-title">1. זרימת מידע (FHIR/HL7)</div>
-                    <div class="card-text">נתונים מעובדים בענן מאובטח, ורק התראות קליניות רלוונטיות (כגון חציית רף ACWR > 1.5) מועברות למערכות האנליטיקה של הקופה (כגון C-Pi או דומות לה).</div>
+                    <div class="card-title">1. Secure Data Ingestion</div>
+                    <div class="card-text">Wearable telemetry is processed in a sovereign cloud. Only actionable threshold breaches (e.g., ACWR > 1.5) generate an HL7/FHIR compliant alert sent to the HMO’s middleware (e.g., C-Pi).</div>
                 </div>
                 <div class="card">
-                    <div class="card-title">2. הנגשה בתיק הרפואי</div>
-                    <div class="card-text">המערכת מצליבה את ההתראה עם התיק הרפואי של המטופל (EMR), ומציגה לרופא המלצה ברורה במסגרת מסלולי הטיפול הקיימים ללא צורך בכניסה למערכות חיצוניות.</div>
+                    <div class="card-title">2. EMR Surface Layer</div>
+                    <div class="card-text">The HMO's platform cross-references the alert with the patient's history and surfaces an actionable recommendation directly inside the native Clicks EMR. No external dashboards required.</div>
                 </div>
-            </div>
-            
-            <div class="context-note">
-                עומד בהנחיות משרד הבריאות לניסויים קליניים התערבותיים מבוססי AI, תוך שמירה על מעורבות רופא (Human-in-the-loop) והגנת פרטיות מחמירה.
             </div>
         </div>
     </div>
@@ -354,38 +191,34 @@
     <div class="slide" data-slide="5">
         <div class="content">
             <div class="tag">Operational Economics</div>
-            <h2>התועלת התפעולית: יצירת קיבולת קלינית (Capacity)</h2>
+            <h2>ROI Measured in Clinical Capacity</h2>
             <p class="lead">
-                במודל ציבורי (קפיטציה), ה-ROI נמדד בשעות רופא שנחסכו וביכולת לקצר תורים, ולא בחיסכון כספי מניתוחים פרטיים.
+                In a capitation-funded model, value is generated by returning hours to physicians, not by saving private surgical claims.
             </p>
 
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>פרמטר (מודל ל-90 יום, 1,000 מטופלים)</th>
-                            <th>כמות צפויה (ללא התערבות)</th>
+                            <th>Metric (90-Day Cohort: 1,000 Members)</th>
+                            <th>Unmitigated Baseline</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>הפניות לאורתופד / מומחי שלד-שריר (MSK)</td>
-                            <td>50 ביקורים חריפים</td>
+                            <td>Acute Secondary MSK Referrals</td>
+                            <td>50 Consultations</td>
                         </tr>
                         <tr>
-                            <td>ביקורי רפואת משפחה בגין שחיקה / תשישות מערכתית</td>
-                            <td>250 ביקורים</td>
+                            <td>Primary Care Visits (Systemic Exhaustion)</td>
+                            <td>250 Visits</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">יעד הפיילוט: הפחתת העומס ב-5% באמצעות יירוט מקדים</td>
-                            <td style="font-weight: 600; color: var(--primary);">חיסכון של עשרות תורים וביקורים</td>
+                            <td style="font-weight: 600;">Pilot Target: 5% Reduction via Interception</td>
+                            <td style="font-weight: 600; color: var(--primary);">Yields dozens of freed clinical hours</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="context-note">
-                חיסכון של 5% בלבד בביקורים מייצר מאות שעות פנויות לצוות הרפואי בשנה, שווי ערך תפעולי העולה משמעותית על עלות הרישוי.
             </div>
         </div>
     </div>
@@ -393,26 +226,26 @@
     <div class="slide" data-slide="6">
         <div class="content">
             <div class="tag">Pilot Proposal</div>
-            <h2>פרמטרים לפיילוט ראשוני (90 יום)</h2>
+            <h2>The 90-Day Evaluation Framework</h2>
             <p class="lead">
-                מודל הערכה מבוקר להוכחת יעילות האלגוריתם בהורדת עומס מרפאות, עם סיכון פיננסי אפסי לקופה.
+                A structured, zero-risk implementation designed to prove capacity creation within the Clinics of the Future initiative.
             </p>
 
             <div class="grid grid-3">
                 <div class="card">
-                    <div class="card-title">אוכלוסיית יעד</div>
+                    <div class="card-title">Target Cohort</div>
                     <div class="card-value">1,000</div>
-                    <div class="card-text">מטופלים בסיכון בינוני, פעילים, עם היסטוריית פניות אורתופדיות/שחיקה (על בסיס פילוח דאטה קיים של הקופה).</div>
+                    <div class="card-text">Active, mid-risk patients with a history of high primary care utilization for minor MSK or stress-related complaints.</div>
                 </div>
                 <div class="card">
-                    <div class="card-title">משך הפיילוט</div>
-                    <div class="card-value">90 ימים</div>
-                    <div class="card-text">תקופת מדידה קצרה ומוגדרת להערכת היענות מטופלים והפחתת פניות לקהילה.</div>
-                </div>
-                <div class="card">
-                    <div class="card-title">עלות תפעולית</div>
+                    <div class="card-title">OpEx Investment</div>
                     <div class="card-value">₪135,000</div>
-                    <div class="card-text">עלות קבועה להרצת הפיילוט. מנגנון תמרוץ למטופלים יבוצע דרך זכאויות השב"ן.</div>
+                    <div class="card-text">Fixed cost for the 90-day execution. Patient compliance incentivized via existing supplemental tier benefits.</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">The Guarantee</div>
+                    <div class="card-value">100%</div>
+                    <div class="card-text">Success metric: ≥15% of amber-zone patients transition to green. If missed, PeakIQ provides a full refund of the pilot fee.</div>
                 </div>
             </div>
         </div>
@@ -435,10 +268,7 @@
     function goToSlide(n) {
         slides.forEach(s => s.classList.remove('active'));
         const next = document.querySelector(`.slide[data-slide="${n}"]`);
-        if (next) {
-            next.classList.add('active');
-            next.scrollTop = 0; // Reset scroll on slide change for mobile
-        }
+        if (next) { next.classList.add('active'); next.scrollTop = 0; }
         current = n;
         counter.textContent = `${current} / ${total}`;
     }
@@ -450,23 +280,17 @@
         goToSlide(next);
     }
 
-    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-            e.preventDefault();
-            changeSlide(e.key === 'ArrowLeft' ? 1 : -1); // RTL Logic: Left arrow goes next
-        }
+        if (e.key === 'ArrowRight') { e.preventDefault(); changeSlide(1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
     });
 
-    // Touch swipe navigation for mobile
     let touchStartX = 0;
-    document.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-    });
+    document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; });
     document.addEventListener('touchend', e => {
         let touchEndX = e.changedTouches[0].screenX;
-        if (touchEndX < touchStartX - 50) changeSlide(1);  // Swipe left -> Next (RTL)
-        if (touchEndX > touchStartX + 50) changeSlide(-1); // Swipe right -> Prev (RTL)
+        if (touchEndX < touchStartX - 50) changeSlide(1); 
+        if (touchEndX > touchStartX + 50) changeSlide(-1); 
     });
 </script>
 
