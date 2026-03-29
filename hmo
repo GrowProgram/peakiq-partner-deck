@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PeakIQ × Israeli HMO — Decision-Grade GTM</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #070b10;
+      --surface: #0f151c;
+      --text: #e6edf3;
+      --text-secondary: #9aa4af;
+      --text-muted: #6b7280;
+      --accent: #00e5ff; /* Matched to PeakIQ brand image */
+      --red: #e5484d;
+      --amber: #f59e0b;
+      --teal: #14b8a6;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+      --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-12: 48px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%; width: 100%; background: var(--bg); color: var(--text);
+      font-family: "Inter", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased; overflow: hidden;
+    }
+
+    /* Subtle Background Glow based on the screenshot */
+    body::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0, 229, 255, 0.05) 0%, rgba(7, 11, 16, 0) 70%);
+      transform: translate(-50%, -50%); z-index: 0; pointer-events: none;
+    }
+
+    .deck { position: relative; width: 100vw; height: 100vh; z-index: 1; }
+
+    .slide {
+      position: absolute; inset: 0; background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0.98) translateY(10px);
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .slide.active { opacity: 1; transform: scale(1) translateY(0); pointer-events: all; }
+
+    .content { max-width: 960px; width: 100%; padding: var(--space-8); margin: 0 auto; }
+
+    .label {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em;
+      color: var(--accent); margin-bottom: var(--space-4); font-weight: 600;
+    }
+
+    .headline {
+      font-size: 42px; line-height: 1.15; font-weight: 700; color: var(--text);
+      margin-bottom: var(--space-6); max-width: 800px; letter-spacing: -0.02em;
+    }
+
+    .headline span { color: var(--accent); }
+
+    .subline {
+      font-size: 18px; color: var(--text-secondary); line-height: 1.6;
+      margin-bottom: var(--space-8); max-width: 760px;
+    }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border-subtle);
+      border-radius: 12px; padding: var(--space-6);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    }
+
+    .card-tight { padding: var(--space-5); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+
+    .number-label {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--text-secondary); margin-bottom: var(--space-2);
+    }
+
+    .number { font-size: 36px; font-weight: 700; color: var(--text); margin-bottom: var(--space-2); }
+    .number.red { color: var(--red); }
+    .number.teal { color: var(--teal); }
+    .muted { color: var(--text-muted); font-size: 14px; line-height: 1.5; }
+
+    /* Custom Data Table */
+    .data-table { width: 100%; border-collapse: collapse; margin-bottom: var(--space-4); }
+    .data-table th, .data-table td {
+      padding: 16px; text-align: left; border-bottom: 1px solid var(--border-subtle);
+      font-size: 15px;
+    }
+    .data-table th { color: var(--text-secondary); font-weight: 500; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;}
+    .data-table td:nth-child(2) { font-weight: 600; color: var(--text); }
+
+    .pill-row { display: flex; gap: var(--space-3); margin-top: var(--space-4); }
+    .pill {
+      font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 999px;
+      border: 1px solid var(--border-subtle); background: #10141a; letter-spacing: 0.05em;
+    }
+    .pill.green { color: var(--teal); border-color: rgba(20, 184, 166, 0.4); background: rgba(20, 184, 166, 0.05); }
+    .pill.amber { color: var(--amber); border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05); }
+    .pill.red { color: var(--red); border-color: rgba(229, 72, 77, 0.4); background: rgba(229, 72, 77, 0.05); }
+
+    .bullet-list { list-style: none; margin-top: var(--space-4); }
+    .bullet-list li {
+      position: relative; padding-left: 24px; margin-bottom: 16px; font-size: 15px; color: var(--text-secondary); line-height: 1.5;
+    }
+    .bullet-list li::before {
+      content: '→'; position: absolute; left: 0; color: var(--accent); font-weight: bold;
+    }
+
+    .mafia-box {
+      border: 1px solid var(--accent); background: rgba(0, 229, 255, 0.03);
+      border-radius: 12px; padding: var(--space-6); text-align: center;
+    }
+
+    .nav-controls {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 16px; padding: 12px 24px;
+      border-radius: 999px; background: rgba(15, 21, 28, 0.8); backdrop-filter: blur(10px);
+      border: 1px solid var(--border-subtle); z-index: 10;
+    }
+    .nav-btn {
+      width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-subtle);
+      background: transparent; color: var(--text); cursor: pointer; transition: 0.2s;
+    }
+    .nav-btn:hover { background: var(--text); color: var(--bg); }
+    .slide-dots { display: flex; gap: 8px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); cursor: pointer; transition: 0.3s; }
+    .dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); transform: scale(1.2); }
+  </style>
+</head>
+<body>
+
+  <div class="deck">
+    
+    <div class="slide active" data-slide="1">
+      <div class="content" style="text-align: center;">
+        <div class="label" style="letter-spacing: 0.2em;">PeakIQ × Israeli HMO</div>
+        <h1 class="headline" style="margin: 0 auto 24px auto;">Decision-Grade <span>Pilot Playbook</span></h1>
+        <p class="subline" style="margin: 0 auto;">90-Day Execution Plan & Actuarial Model</p>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="2">
+      <div class="content">
+        <div class="label">Slide 1 — The Burning Platform</div>
+        <h2 class="headline">₪4 Million per 1,000 Members. Preventable. Undetected. <span>Paid Again Next Year.</span></h2>
+        
+        <p class="subline">
+          Every orthopedic procedure, burnout hospitalization, and preventable ER visit in your active member base was preceded by a physiological signal your system never read.
+        </p>
+
+        <div class="grid-2">
+          <div class="card card-tight">
+            <div class="number-label">The Architecture Gap</div>
+            <div class="muted">You had the data. You had the members. You didn't have the intervention engine. This is not a clinical failure. It is an architecture gap with a measurable NIS price tag.</div>
+          </div>
+          <div class="card card-tight" style="border-color: rgba(229, 72, 77, 0.3);">
+            <div class="number-label">Quantified Blindspot</div>
+            <div class="number red">₪719M</div>
+            <div class="muted">Hip fractures alone cost Israel's Kupot ₪719 million annually. That number is not going down without upstream interception.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="3">
+      <div class="content">
+        <div class="label">Slide 2 — The Cost Stack</div>
+        <h2 class="headline">Here Is What You Are Paying For — <span>And What a 5% Move Is Worth</span></h2>
+
+        <div class="card" style="margin-bottom: 24px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Annual ₪ per 1,000 Members</th>
+                <th>Source / Proxy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Orthopedic events</td>
+                <td>₪2,400,000</td>
+                <td class="muted">Israeli fracture data + 8% incidence proxy</td>
+              </tr>
+              <tr>
+                <td>Burnout/sick leave</td>
+                <td>₪1,176,000</td>
+                <td class="muted">48.6% workforce burnout; 15% medical utilization</td>
+              </tr>
+              <tr>
+                <td>Preventable ER visits</td>
+                <td>₪480,000</td>
+                <td class="muted">₪681 avg ER cost; 15 visits/1,000/quarter</td>
+              </tr>
+              <tr style="background: rgba(255,255,255,0.02);">
+                <td style="color: var(--text);"><strong>Total preventable baseline</strong></td>
+                <td style="color: var(--red);"><strong>₪4,056,000</strong></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid-2">
+          <div class="card card-tight">
+            <div class="number-label">At 5% Improvement</div>
+            <div class="number teal">₪202,800 saved</div>
+            <div class="muted">Break-even threshold for pilot is achieved at just 6.2% improvement.</div>
+          </div>
+          <div class="card card-tight">
+            <div class="number-label">At 10% Improvement</div>
+            <div class="number teal">₪405,600 saved</div>
+            <div class="muted">Year-1 net ROI: +₪285,600. At 500k members, 5% improvement = ₪101M saved.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="4">
+      <div class="content">
+        <div class="label">Slide 3 — What PeakIQ Is</div>
+        <h2 class="headline">Not a Dashboard. Not an App. <br><span>A Daily Risk Interception Engine.</span></h2>
+        
+        <p class="subline">
+          A dashboard tells you what happened. PeakIQ changes what happens next. It catches the signal 14 days before the event.
+        </p>
+
+        <div class="card">
+          <div class="number-label" style="margin-bottom: 16px;">Every morning, for every member:</div>
+          <ul class="bullet-list" style="margin-top: 0;">
+            <li><strong>Physiological risk bucket assigned</strong> from overnight wearable data.</li>
+            <li><strong>Personalized intervention protocol delivered:</strong> modified workout, recovery actions, one-tap compliance.</li>
+            <li><strong>High-risk escalations flagged</strong> to clinical team automatically.</li>
+          </ul>
+          
+          <div class="pill-row">
+            <div class="pill green">GREEN: Optimal</div>
+            <div class="pill amber">AMBER: Elevated Risk</div>
+            <div class="pill red">RED: Immediate Escalation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="5">
+      <div class="content">
+        <div class="label">Slide 4 — The Retention Proof</div>
+        <h2 class="headline">68% Annual Retention. <br><span>Here Is Why the Business Model Holds.</span></h2>
+
+        <div class="grid-2" style="margin-bottom: 24px;">
+          <div class="card card-tight">
+            <div class="number-label">Standard Wellness Apps</div>
+            <div class="number red">< 20%</div>
+            <div class="muted">Engagement drops below 20% at 90 days. Built on aspiration and information push. The model collapses.</div>
+          </div>
+          <div class="card card-tight" style="border-color: rgba(20, 184, 166, 0.3);">
+            <div class="number-label">PeakIQ Architecture</div>
+            <div class="number teal">68%</div>
+            <div class="muted">Clinically-integrated with physiological consequence feedback at 12 months. The economic model compounds.</div>
+          </div>
+        </div>
+
+        <div class="card card-tight">
+          <p class="muted">
+            The difference is not technology. It is architecture. PeakIQ does not push information. It shows members a score that is moving in the wrong direction and gives them a one-tap path to stop it. <strong>Loss aversion is a stronger motivator than aspiration.</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="6">
+      <div class="content">
+        <div class="label">Slide 5 — The Competitive Window</div>
+        <h2 class="headline">Clalit's Open Call Closed March 30, 2026. <span>One of the Four Kupot Moved First.</span></h2>
+
+        <div class="grid-2">
+          <div class="card card-tight">
+            <div class="number-label">Market Reality</div>
+            <ul class="bullet-list" style="margin-top: 0;">
+              <li>Clalit Innovation published an open call seeking systems that move healthcare to proactive care.</li>
+              <li>Maccabi renewed a 6-year SaaS partnership with a digital health provider.</li>
+              <li>Meuhedet and Leumit are watching both.</li>
+            </ul>
+          </div>
+          <div class="card card-tight">
+            <div class="number-label">The First-Mover Advantage</div>
+            <div class="muted" style="margin-bottom: 12px;">The HMO that runs a physiological risk pilot first will own:</div>
+            <ul class="bullet-list" style="margin-top: 0;">
+              <li>12 months of real-world outcome data.</li>
+              <li>A publishable result under their brand.</li>
+              <li>A transfer-window acquisition argument competitors cannot replicate without a 12-month clock.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="subline" style="margin-top: 24px; font-size: 16px;">
+          <em>You cannot buy 12 months of data. You can only start collecting it today.</em>
+        </p>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="7">
+      <div class="content">
+        <div class="label">Slide 6 — The Mafia Offer</div>
+        <h2 class="headline">90 Days. 1,000 Members. <br><span>Full Refund If We Miss the Metric.</span></h2>
+
+        <div class="mafia-box">
+          <div class="grid-3" style="margin-bottom: 24px; text-align: left;">
+            <div>
+              <div class="number-label">Duration & Cohort</div>
+              <div class="number" style="font-size: 28px;">90 Days / 1K</div>
+            </div>
+            <div>
+              <div class="number-label">Fixed Fee</div>
+              <div class="number" style="font-size: 28px;">₪120,000</div>
+            </div>
+            <div>
+              <div class="number-label">Success Metric</div>
+              <div class="number" style="font-size: 28px; color: var(--teal);">≥15%</div>
+              <div class="muted">of amber-zone move to green</div>
+            </div>
+          </div>
+          <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 24px 0;">
+          <p style="font-size: 18px; line-height: 1.6;">
+            <strong>If metric is missed:</strong> Full refund.<br>
+            <strong>If metric is achieved:</strong> You have the data to scale to 10,000 members with a signed outcome.<br><br>
+            <span style="color: var(--text-secondary);">We are not asking you to buy a product. We are asking you to measure one. <strong>The risk is ours. The upside is yours.</strong></span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="8">
+      <div class="content" style="text-align: center;">
+        <div class="label">Slide 7 — The Decision</div>
+        <h2 class="headline" style="margin-left: auto; margin-right: auto;">Three Questions. One Room. <br><span>One Answer Before You Leave.</span></h2>
+        
+        <div class="card" style="max-width: 600px; margin: 0 auto 32px auto; padding: 40px;">
+          <p style="font-size: 24px; font-weight: 600; margin-bottom: 24px;">We need one answer today:</p>
+          <div style="display: flex; gap: 16px; justify-content: center;">
+            <div style="padding: 16px 32px; background: var(--text); color: var(--bg); border-radius: 8px; font-weight: 700;">Yes to pilot</div>
+            <div style="padding: 16px 32px; border: 1px solid var(--border-subtle); border-radius: 8px; color: var(--text-secondary);">No with a written reason</div>
+          </div>
+        </div>
+
+        <p class="muted">
+          We are offering this to one Kupah in Q2 2026. Two parallel conversations are in progress.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav-controls">
+    <button class="nav-btn" onclick="changeSlide(-1)">‹</button>
+    <div class="slide-dots" id="dots"></div>
+    <button class="nav-btn" onclick="changeSlide(1)">›</button>
+  </div>
+
+  <script>
+    let current = 1;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const dotsContainer = document.getElementById('dots');
+
+    for (let i = 1; i <= total; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 1 ? ' active' : '');
+      dot.onclick = () => goToSlide(i);
+      dotsContainer.appendChild(dot);
+    }
+
+    function goToSlide(n) {
+      slides.forEach(s => s.classList.remove('active'));
+      const next = document.querySelector(`.slide[data-slide="${n}"]`);
+      if (next) next.classList.add('active');
+      current = n;
+      document.querySelectorAll('.dot').forEach((d, i) => {
+        d.classList.toggle('active', i + 1 === current);
+      });
+    }
+
+    function changeSlide(dir) {
+      let next = current + dir;
+      if (next < 1) next = total;
+      if (next > total) next = 1;
+      goToSlide(next);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+    });
+  </script>
+</body>
+</html>
