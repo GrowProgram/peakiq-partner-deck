@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeakIQ Actuarial Modeling & Financial Justification</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0f1115;
+            --surface: #181a1f;
+            --surface-alt: #1f2229;
+            --text: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #0ea5e9; /* Single accent color: Corporate Blue */
+            --border: #2d3748;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .deck { width: 100vw; height: 100vh; position: relative; }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: none; /* Static, no transition */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+        }
+
+        .slide.active { display: flex; }
+
+        .content {
+            width: 100%;
+            max-width: 960px;
+            padding: 40px;
+        }
+
+        h1, h2 { font-weight: 600; line-height: 1.2; margin-bottom: 12px; color: var(--text); }
+        h1 { font-size: 32px; }
+        h2 { font-size: 28px; }
+
+        .core-statement {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            max-width: 800px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+        .data-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .data-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .data-value.accent { color: var(--accent); }
+
+        .data-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .table-container {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            margin-bottom: 24px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .data-table th, .data-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px;
+        }
+
+        .data-table th {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--surface-alt);
+        }
+
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table .bold-row td { font-weight: 600; color: var(--text); background: var(--surface-alt); }
+
+        .context-note {
+            font-size: 13px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+            margin-top: 32px;
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--surface);
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .nav-btn:hover { color: var(--text); }
+
+        .slide-counter {
+            font-size: 13px;
+            color: var(--text-muted);
+            min-width: 40px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        ul.solid-list { list-style: none; }
+        ul.solid-list li {
+            position: relative;
+            padding-left: 16px;
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+        ul.solid-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+<div class="deck">
+
+    <div class="slide active" data-slide="1">
+        <div class="content">
+            <div class="data-label" style="color: var(--accent); margin-bottom: 16px;">PeakIQ Actuarial Modeling</div>
+            <h1>Financial Justification & Algorithmic Mitigation</h1>
+            <p class="core-statement">
+                Algorithmic claim prevention model designed for a representative 1,000-life commercial cohort.
+            </p>
+            <div class="context-note" style="border-top: none; padding-top: 0;">
+                Prepared for Actuarial and Financial Review.
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" data-slide="2">
+        <div class="content">
+            <h2>Projected 90-Day Baseline Claims Exposure</h2>
+            <p class="core-statement">
+                Estimated unmitigated claims exposure is ₪3,150,000 per 1,000 insured lives over a 90-day period[cite: 396, 411].
+            </p>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Risk Category</th>
+                            <th>Claim Frequency</th>
+                            <th>Avg. Severity</th>
+                            <th>Total Expected Incurred</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Orthopedic / Musculoskeletal (MSK)</td>
+                            <td>50</td>
+                            <td>₪15,000</td>
+                            <td>₪750,000 [cite: 401, 404]</td>
+                        </tr>
+                        <tr>
+                            <td>Burnout / Systemic Illness Absenteeism</td>
+                            <td>250</td>
+                            <td>₪3,600</td>
+                            <td>₪900,000 [cite: 406, 407]</td>
+                        </tr>
+                        <tr>
+                            <td>Minor / Uncategorized Medical Utilization</td>
+                            <td>300</td>
+                            <td>₪5,000</td>
+                            <td>₪1,500,000 [cite: 409]</td>
+                        </tr>
+                        <tr class="bold-row">
+                            <td colspan="3">Total 90-Day Unmitigated Exposure</td>
+                            <td>₪3,150,000 [cite: 410]</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="context-note">
+                Based on modeled assumptions across a representative insured population. Actual results may vary depending on demographic mix, adoption rates, and baseline claims distribution[cite: 398, 399].
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" data-slide="3">
+        <div class="content">
+            <h2>Impact on Underwriting Margins and Capital Efficiency</h2>
+            <p class="core-statement">
+                High-frequency preventable claims directly inflate reserves and reduce capital efficiency[cite: 413, 452].
+            </p>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="data-label">Reserving Requirements</div>
+                    <div class="data-desc">Escalating claims actively increase Incurred But Not Reported (IBNR) requirements[cite: 452].</div>
+                </div>
+                <div class="card">
+                    <div class="data-label">Capital Allocation</div>
+                    <div class="data-desc">High claims volatility necessitates expanded Solvency II buffers, locking capital in low-yield vehicles rather than alternative investments[cite: 449, 450, 452].</div>
+                </div>
+                <div class="card">
+                    <div class="data-label">Operating Margins</div>
+                    <div class="data-desc">Preventable high-severity events (e.g., orthopedic surgeries) directly erode the Contractual Service Margin (CSM)[cite: 413].</div>
+                </div>
+            </div>
+
+            <div class="context-note">
+                Observations correspond to standard ERM (Enterprise Risk Management) and Solvency II regulatory frameworks applied to the Israeli health insurance sector[cite: 350, 449].
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" data-slide="4">
+        <div class="content">
+            <h2>Limitations of Retrospective Activity Tracking</h2>
+            <p class="core-statement">
+                Standard engagement models track lagging indicators and do not reliably mitigate acute physiological risk[cite: 362].
+            </p>
+
+            <div class="card">
+                <ul class="solid-list" style="margin-bottom: 0;">
+                    <li><strong>Activity Metrics:</strong> Incentivizing movement (e.g., step goals) without physiological context may elevate musculoskeletal injury risk during periods of accumulated tissue fatigue[cite: 365, 366].</li>
+                    <li><strong>Engagement vs. Claims:</strong> High utilization of general wellness portals has not demonstrated a reliable correlation with reduced severe medical loss ratios[cite: 372, 374].</li>
+                    <li><strong>Timing Deficit:</strong> Costs are typically identified post-event, when the liability is already incurred and clinical intervention is required[cite: 350].</li>
+                </ul>
+            </div>
+
+            <div class="context-note">
+                Analysis refers to generic engagement architectures that operate without real-time biometric contextualization[cite: 362, 366].
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" data-slide="5">
+        <div class="content">
+            <h2>Continuous Physiological Risk Mitigation</h2>
+            <p class="core-statement">
+                PeakIQ functions as an early-warning intervention engine utilizing established autonomic and biomechanical biomarkers[cite: 353, 378].
+            </p>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="data-label">Input Telemetry</div>
+                    <div class="data-desc">Continuous algorithmic analysis of ACWR (Acute:Chronic Workload Ratio) and HRV (Heart Rate Variability) from standard wearables[cite: 382, 388].</div>
+                </div>
+                <div class="card">
+                    <div class="data-label">Detection Window</div>
+                    <div class="data-desc">Identifies autonomic nervous system stress and tissue vulnerability 24 to 48 hours before clinical symptom manifestation[cite: 354, 390].</div>
+                </div>
+                <div class="card">
+                    <div class="data-label">Automated Intervention</div>
+                    <div class="data-desc">Triggers targeted recovery protocols and load cessation mandates precisely during the physiological vulnerability window[cite: 384, 390].</div>
+                </div>
+            </div>
+
+            <div class="context-note">
+                Biomarker predictive accuracy is based on clinical cohort studies for ACWR and HRV telemetry modeling[cite: 383, 384, 390].
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" data-slide="6">
+        <div class="content">
+            <h2>Estimated 90-Day ROI at 5% Claim Mitigation</h2>
+            <p class="core-statement">
+                A modeled 5% reduction in overall claim frequency yields a positive net return on investment within the initial quarter[cite: 417].
+            </p>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Financial Performance Metric</th>
+                            <th>Modeled Value (₪)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Gross Claims Prevented (Direct Savings @ 5%)</td>
+                            <td class="data-value accent" style="font-size: 18px; margin: 0;">₪157,500 [cite: 423]</td>
+                        </tr>
+                        <tr>
+                            <td>PeakIQ Technology OPEX (1,000 users)</td>
+                            <td>(₪135,000) [cite: 428]</td>
+                        </tr>
+                        <tr class="bold-row">
+                            <td>Net Financial Surplus (Net ROI)</td>
+                            <td>₪22,500 (16.6%) [cite: 429]</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="context-note">
+                Based on a 5% claim frequency reduction over a 1,000-user cohort. Assumes a fully loaded technology operational expenditure of 135 ₪ per user per 90-day cycle[cite: 426, 427].
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" data-slide="7">
+        <div class="content">
+            <h2>Annualized Exposure and Cost of Inaction (COI)</h2>
+            <p class="core-statement">
+                Unmitigated exposure compounds annually due to medical inflation and continuous risk pool deterioration[cite: 440, 444, 445].
+            </p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="data-label">Total Estimated 12-Month COI</div>
+                    <div class="data-value">₪13,800,000 [cite: 447]</div>
+                    <div class="data-desc">Compounding unmitigated claims exposure per 1,000 insured lives.</div>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+                    <ul class="solid-list" style="margin: 0;">
+                        <li><strong>Raw Annualized Baseline:</strong> ₪12,600,000 [cite: 442]</li>
+                        <li><strong>Medical Inflation Factor:</strong> +₪550,000 [cite: 447]</li>
+                        <li><strong>Pool Deterioration:</strong> +₪650,000 [cite: 447]</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="context-note">
+                Medical inflation is modeled at 10% specifically applied to private hospital and surgical (Sharap) procedures[cite: 444]. Risk pool deterioration accounts for chronicity multipliers[cite: 445, 447].
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" data-slide="8">
+        <div class="content">
+            <h2>Proposed Evaluation Framework</h2>
+            <p class="core-statement">
+                A 90-day structured deployment to validate algorithmic claim reduction and establish proprietary actuarial baselines prior to scale[cite: 484, 486].
+            </p>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="data-label">Target Cohort</div>
+                    <div class="data-value">1,000</div>
+                    <div class="data-desc">Insured commercial lives[cite: 398].</div>
+                </div>
+                <div class="card">
+                    <div class="data-label">Duration</div>
+                    <div class="data-value">90 Days</div>
+                    <div class="data-desc">Measurement period[cite: 399].</div>
+                </div>
+                <div class="card">
+                    <div class="data-label">Fixed OPEX</div>
+                    <div class="data-value">₪135,000</div>
+                    <div class="data-desc">Total pilot investment[cite: 428].</div>
+                </div>
+            </div>
+
+            <div class="context-note">
+                Primary objective: Verify modeled ≥5% claim mitigation threshold to substantiate full portfolio deployment metrics[cite: 417, 502].
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="nav-controls">
+    <button class="nav-btn" onclick="changeSlide(-1)">&#8592;</button>
+    <span class="slide-counter" id="counter">1 / 8</span>
+    <button class="nav-btn" onclick="changeSlide(1)">&#8594;</button>
+</div>
+
+<script>
+    let current = 1;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const counter = document.getElementById('counter');
+
+    function goToSlide(n) {
+        slides.forEach(s => s.classList.remove('active'));
+        const next = document.querySelector(`.slide[data-slide="${n}"]`);
+        if (next) next.classList.add('active');
+        current = n;
+        counter.textContent = current + ' / ' + total;
+    }
+
+    function changeSlide(dir) {
+        let next = current + dir;
+        if (next < 1) next = total;
+        if (next > total) next = 1;
+        goToSlide(next);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+    });
+</script>
+
+</body>
+</html>
